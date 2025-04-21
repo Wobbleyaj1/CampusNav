@@ -1,13 +1,9 @@
 # Graph data structure + Dijkstra’s algorithm
 
-# src/graph.py
-
-import heapq
-
 class Graph:
     def __init__(self):
         pass
-    
+
     def add_node(self, node):
         """Add a new node to the graph."""
 

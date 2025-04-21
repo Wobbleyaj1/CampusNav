@@ -1,9 +1,20 @@
 {
-    "nodes": ["Library", "Cafeteria", "Gym", "Dorm"],
-    "edges": [
-      {"from": "Library", "to": "Cafeteria", "weight": 2},
-      {"from": "Library", "to": "Gym", "weight": 4},
-      {"from": "Cafeteria", "to": "Dorm", "weight": 3}
+    "locations": [
+      { "id": "A", "name": "Main Gate" },
+      { "id": "B", "name": "Library" },
+      { "id": "C", "name": "Cafeteria" },
+      { "id": "D", "name": "Engineering Building" },
+      { "id": "E", "name": "Gym" },
+      { "id": "F", "name": "Parking Lot" }
+    ],
+    "connections": [
+      { "from": "A", "to": "B", "distance": 200 },
+      { "from": "A", "to": "C", "distance": 150 },
+      { "from": "B", "to": "D", "distance": 100 },
+      { "from": "C", "to": "D", "distance": 120 },
+      { "from": "C", "to": "E", "distance": 180 },
+      { "from": "D", "to": "F", "distance": 300 },
+      { "from": "E", "to": "F", "distance": 250 }
     ]
   }
   

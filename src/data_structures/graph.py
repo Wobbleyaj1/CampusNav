@@ -2,7 +2,7 @@
 
 class Graph:
     def __init__(self):
-        pass
+        """Initialize the graph."""
 
     def add_node(self, node):
         """Add a new node to the graph."""

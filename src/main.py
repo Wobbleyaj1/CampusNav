@@ -20,7 +20,7 @@ def main():
         print("4. Search for a location")
         print("5. Find shortest route between two locations")
         print("6. View route history")
-        print("7. Display all locations on the campus map")  # New option
+        print("7. Display all locations on the campus map")
         print("8. Exit")
 
         # Get user input

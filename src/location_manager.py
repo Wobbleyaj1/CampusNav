@@ -2,8 +2,8 @@ import json
 
 class LocationManager:
     def __init__(self, json_file="data/campus_map.json"):
-        # Dictionary to store locations with their coordinates
-        self.locations = {}
+        # List to store locations with their full structure
+        self.locations = []
         self.json_file = json_file
         self.load_locations()
 
@@ -12,56 +12,86 @@ class LocationManager:
         try:
             with open(self.json_file, "r") as file:
                 data = json.load(file)
-                for location in data.get("locations", []):
-                    name = location["name"]
-                    coordinates = location.get("coordinates", "0,0")
-                    self.locations[name] = coordinates
+                self.locations = data.get("locations", [])
             print("Locations loaded successfully.")
         except FileNotFoundError:
             print(f"File {self.json_file} not found. Starting with an empty location list.")
+            self.locations = []
         except json.JSONDecodeError:
             print(f"Error decoding JSON from {self.json_file}. Starting with an empty location list.")
+            self.locations = []
 
     def save_locations(self):
         """Save locations to the JSON file."""
         try:
-            data = {"locations": [{"name": name, "coordinates": coords} for name, coords in self.locations.items()]}
+            data = {"locations": self.locations}
             with open(self.json_file, "w") as file:
                 json.dump(data, file, indent=4)
             print("Locations saved successfully.")
         except Exception as e:
             print(f"Error saving locations: {e}")
 
-    def add_location(self, name, coordinates):
+    def add_location(self, name, coordinates, point_of_interest):
         """Add a new location."""
-        if name in self.locations:
+        # Check if the location already exists
+        if any(location["name"] == name for location in self.locations):
             print(f"Location '{name}' already exists.")
-        else:
-            self.locations[name] = coordinates
-            print(f"Location '{name}' added with coordinates {coordinates}.")
-            self.save_locations()
+            return
+
+        # Parse coordinates
+        try:
+            x, y = map(int, coordinates.split(","))
+        except ValueError:
+            print("Invalid coordinates format. Use 'x,y'.")
+            return
+
+        # Generate a new unique ID
+        new_id = max((location["id"] for location in self.locations), default=0) + 1
+
+        # Add the new location
+        new_location = {
+            "id": new_id,
+            "name": name,
+            "x": x,
+            "y": y,
+            "pointOfInterest": point_of_interest
+        }
+        self.locations.append(new_location)
+        print(f"Location '{name}' added with coordinates {coordinates} and pointOfInterest={point_of_interest}.")
+        self.save_locations()
 
     def edit_location(self, name, new_coordinates):
         """Edit an existing location."""
-        if name in self.locations:
-            self.locations[name] = new_coordinates
-            print(f"Location '{name}' updated to new coordinates {new_coordinates}.")
-            self.save_locations()
-        else:
-            print(f"Location '{name}' does not exist.")
+        for location in self.locations:
+            if location["name"] == name:
+                try:
+                    x, y = map(int, new_coordinates.split(","))
+                except ValueError:
+                    print("Invalid coordinates format. Use 'x,y'.")
+                    return
+                location["x"] = x
+                location["y"] = y
+                print(f"Location '{name}' updated to new coordinates {new_coordinates}.")
+                self.save_locations()
+                return
+        print(f"Location '{name}' does not exist.")
 
     def delete_location(self, name):
         """Delete a location."""
-        if name in self.locations:
-            del self.locations[name]
-            print(f"Location '{name}' deleted.")
-            self.save_locations()
-        else:
-            print(f"Location '{name}' does not exist.")
+        for location in self.locations:
+            if location["name"] == name:
+                self.locations.remove(location)
+                print(f"Location '{name}' deleted.")
+                self.save_locations()
+                return
+        print(f"Location '{name}' does not exist.")
 
     def search_location(self, name):
         """Search for a location by name."""
-        return self.locations.get(name, None)
+        for location in self.locations:
+            if location["name"] == name:
+                return location
+        return None
 
     def list_locations(self):
         """List all locations on the campus map."""
@@ -69,5 +99,5 @@ class LocationManager:
             print("No locations available on the campus map.")
         else:
             print("Current locations on the campus map:")
-            for name, coordinates in self.locations.items():
-                print(f"- {name}: {coordinates}")
+            for location in self.locations:
+                print(f"- {location['name']}: ({location['x']}, {location['y']})")

@@ -1,91 +1,263 @@
 {
-  "locations": [
-    {"id": 1, "name":"Adams/Winship Lower", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 2, "name":"Adams/Winship Middle", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 3, "name":"Adams/Winship Upper", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 4, "name":"Baseball Stadium", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 5, "name":"Gardens Apartments", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 6, "name":"UC Back Entrance", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 7, "name":"UC Main Entrance", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 8, "name":"Greek Row", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 9, "name":"Softball Stadium", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 10, "name":"Mercer Hall", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 11, "name":"Upper Classroom Dorms", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 12, "name":"Stetson Hall", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 13, "name":"Jack Tarver Library", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 14, "name":"Upper Historic Quad", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 15, "name":"Middle Historic Quad", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 16, "name":"Lower Historic Quad", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 17, "name":"Student Center", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 18, "name":"MEP Housing Complex", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 19, "name":"Legacy Hall", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 20, "name":"Plunkett Hall", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 21, "name":"Godsey Science Center", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 22, "name":"Willet Science Center", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 23, "name":"Science and Engineering Building", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 24, "name":"Engineering Building", "x":0, "y":0, "pointOfInterest":true},
-    {"id": 25, "name":"Football Stadium", "x":0, "y":0, "pointOfInterest":true},
-    {"id": -1, "name":"Back UC Stairs", "x":0, "y":0, "pointOfInterest":false},
-    {"id": -2, "name":"Adams/Winship/Gardens Gate", "x":0, "y":0, "pointOfInterest":false},
-    {"id": -3, "name":"Behind UC Crosswalk", "x":0, "y":0, "pointOfInterest":false},
-    {"id": -4, "name":"Greek Row Brick Circle", "x":0, "y":0, "pointOfInterest":false},
-    {"id": -5, "name":"Bottom UC Stairs", "x":0, "y":0, "pointOfInterest":false},
-    {"id": -6, "name":"Bear Statue", "x":0, "y":0, "pointOfInterest":false},
-    {"id": -7, "name":"Student Center/Cruz Stairs", "x":0, "y":0, "pointOfInterest":false},
-    {"id": -8, "name":"Jesse Mercer Statue", "x":0, "y":0, "pointOfInterest":false},
-    {"id": -9, "name":"Between Student Center/Wiggs", "x":0, "y":0, "pointOfInterest":false},
-    {"id": -10, "name":"MEP Crosswalk", "x":0, "y":0, "pointOfInterest":false},
-    {"id": -11, "name":"East Campus Plaza", "x":0, "y":0, "pointOfInterest":false},
-    {"id": -12, "name":"4-way Stop", "x":0, "y":0, "pointOfInterest":false}
-  ],
-  
-  "connections": [
-    { "from": 1, "to": 4, "distance": 67 },
-    { "from": 4, "to": 2, "distance": 46},
-    { "from": 2, "to": -1, "distance": 83},
-    { "from": -1, "to": 6, "distance": 37},
-    { "from": -1, "to": -3, "distance": 31},
-    { "from": -3, "to": -2, "distance": 39},
-    { "from": -2, "to": 3, "distance": 19},
-    { "from": -2, "to": 5, "distance": 9},
-    { "from": -3, "to": -4, "distance": 140},
-    { "from": -4, "to": 8, "distance": 27},
-    { "from": -4, "to": 11, "distance": 158},
-    { "from": -4, "to": -6, "distance": 94},
-    { "from": -4, "to": 7, "distance": 50},
-    { "from": 7, "to": -5, "distance": 55},
-    { "from": -5, "to": -6, "distance": 21},
-    { "from": -5, "to": 12, "distance": 47},
-    { "from": -6, "to": 12, "distance": 51},
-    { "from": -6, "to": 10, "distance": 77},
-    { "from": 10, "to": -7, "distance": 78},
-    { "from": 11, "to": -7, "distance": 52},
-    { "from": 11, "to": 14, "distance": 101},
-    { "from": 14, "to": 15, "distance": 78},
-    { "from": 14, "to": -8, "distance": 55},
-    { "from": -8, "to": 15, "distance": 53},
-    { "from": -8, "to": -7, "distance": 45},
-    { "from": 15, "to": 16, "distance": 57},
-    { "from": -7, "to": 17, "distance": 51},
-    { "from": 17, "to": -9, "distance": 44},
-    { "from": -9, "to": 16, "distance": 45},
-    { "from": -9, "to": -11, "distance": 52},
-    { "from": 16, "to": -10, "distance": 33},
-    { "from": -10, "to": 18, "distance": 23},
-    { "from": -10, "to": -11, "distance": 53},
-    { "from": -11, "to": 19, "distance": 87},
-    { "from": -11, "to": 20, "distance": 72},
-    { "from": 20, "to": 21, "distance": 92},
-    { "from": 21, "to": 13, "distance": 108},
-    { "from": 13, "to": 12, "distance": 45},
-    { "from": 21, "to": 22, "distance": 110},
-    { "from": 22, "to": -12, "distance": 34},
-    { "from": -12, "to": 23, "distance": 37},
-    { "from": 23, "to": 24, "distance": 67},
-    { "from": -12, "to": 9, "distance": 184},
-    { "from": -12, "to": 25, "distance": 265},
-    { "from": -5, "to": 9, "distance": 146},
-    { "from": 9, "to": 4, "distance": 294},
-    { "from": 1, "to": 25, "distance": 575}
-  ]
+    "locations": [
+        {
+            "id": 1,
+            "name": "Adams/Winship Lower",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 2,
+            "name": "Adams/Winship Middle",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 3,
+            "name": "Adams/Winship Upper",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 4,
+            "name": "Baseball Stadium",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 5,
+            "name": "Gardens Apartments",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 6,
+            "name": "UC Back Entrance",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 7,
+            "name": "UC Main Entrance",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 8,
+            "name": "Greek Row",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 9,
+            "name": "Softball Stadium",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 10,
+            "name": "Mercer Hall",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 11,
+            "name": "Upper Classroom Dorms",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 12,
+            "name": "Stetson Hall",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 13,
+            "name": "Jack Tarver Library",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 14,
+            "name": "Upper Historic Quad",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 15,
+            "name": "Middle Historic Quad",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 16,
+            "name": "Lower Historic Quad",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 17,
+            "name": "Student Center",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 18,
+            "name": "MEP Housing Complex",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 19,
+            "name": "Legacy Hall",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 20,
+            "name": "Plunkett Hall",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 21,
+            "name": "Godsey Science Center",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 22,
+            "name": "Willet Science Center",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 23,
+            "name": "Science and Engineering Building",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 24,
+            "name": "Engineering Building",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": 25,
+            "name": "Football Stadium",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": true
+        },
+        {
+            "id": -1,
+            "name": "Back UC Stairs",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": false
+        },
+        {
+            "id": -2,
+            "name": "Adams/Winship/Gardens Gate",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": false
+        },
+        {
+            "id": -3,
+            "name": "Behind UC Crosswalk",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": false
+        },
+        {
+            "id": -4,
+            "name": "Greek Row Brick Circle",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": false
+        },
+        {
+            "id": -5,
+            "name": "Bottom UC Stairs",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": false
+        },
+        {
+            "id": -6,
+            "name": "Bear Statue",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": false
+        },
+        {
+            "id": -7,
+            "name": "Student Center/Cruz Stairs",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": false
+        },
+        {
+            "id": -8,
+            "name": "Jesse Mercer Statue",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": false
+        },
+        {
+            "id": -9,
+            "name": "Between Student Center/Wiggs",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": false
+        },
+        {
+            "id": -10,
+            "name": "MEP Crosswalk",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": false
+        },
+        {
+            "id": -11,
+            "name": "East Campus Plaza",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": false
+        },
+        {
+            "id": -12,
+            "name": "4-way Stop",
+            "x": 0,
+            "y": 0,
+            "pointOfInterest": false
+        }
+    ]
 }

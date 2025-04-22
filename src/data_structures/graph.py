@@ -16,7 +16,7 @@ class Graph:
     def remove_edge(self, from_node, to_node):
         """Remove the edge between two nodes."""
 
-    def dijkstra(self, start, end):
+    def find_shortest_path(self, start, end):
         """Find the shortest path using Dijkstra's algorithm."""
         
     def display(self):

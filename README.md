@@ -26,9 +26,10 @@ CampusNav/
 │   ├── locations.json        # Metadata for each campus location
 ├── src/
 │   ├── __init__.py
-│   ├── graph.py              # Graph data structure and pathfinding logic
+|   ├── route_history.py
+│   ├── location_manager.py
 │   ├── utils.py              # Helper functions (searching, sorting, etc.)
-│   ├── campus_nav.py         # Main app logic
+│   ├── main.py               # Main app logic
 ├── tests/
 │   ├── test_graph.py
 │   └── test_nav.py

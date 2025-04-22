@@ -25,7 +25,6 @@
     {"id": 23, "name":"Science and Engineering Building", "x":0, "y":0, "pointOfInterest":true},
     {"id": 24, "name":"Engineering Building", "x":0, "y":0, "pointOfInterest":true},
     {"id": 25, "name":"Football Stadium", "x":0, "y":0, "pointOfInterest":true},
-
     {"id": -1, "name":"Back UC Stairs", "x":0, "y":0, "pointOfInterest":false},
     {"id": -2, "name":"Adams/Winship/Gardens Gate", "x":0, "y":0, "pointOfInterest":false},
     {"id": -3, "name":"Behind UC Crosswalk", "x":0, "y":0, "pointOfInterest":false},

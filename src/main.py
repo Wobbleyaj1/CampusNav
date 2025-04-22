@@ -80,7 +80,7 @@ def main():
 
         elif choice == 7:
             # Display all locations on the campus map
-            plot_locations(location_manager.locations)
+            plot_locations(location_manager.locations, background_image_path="./assets/mercer_map.png")
 
         elif choice == 8:
             # Exit the application

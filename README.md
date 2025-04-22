@@ -22,14 +22,14 @@ Users can:
 ```
 CampusNav/
 ├── data/
-│   ├── campus_map.json       # Graph structure of the campus
-│   ├── locations.json        # Metadata for each campus location
+│   ├── campus_map.json         # Graph structure of the campus
+│   ├── location_features.json  # Metadata for each campus location
 ├── src/
 │   ├── __init__.py
 |   ├── route_history.py
 │   ├── location_manager.py
-│   ├── utils.py              # Helper functions (searching, sorting, etc.)
-│   ├── main.py               # Main app logic
+│   ├── utils.py                # Helper functions (searching, sorting, etc.)
+│   ├── main.py                 # Main app logic
 ├── tests/
 │   ├── test_graph.py
 │   └── test_nav.py

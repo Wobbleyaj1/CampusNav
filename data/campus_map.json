@@ -1,12 +1,12 @@
 {
   "locations": [
-      { "id": "A", "name": "Secondary Gate", "coordinates": "0,7" },
-      { "id": "B", "name": "Tarver Library", "coordinates": "20,10" },
-      { "id": "C", "name": "Cafeteria", "coordinates": "30,10" },
-      { "id": "D", "name": "Science and Engineering Building", "coordinates": "7,5" },
-      { "id": "E", "name": "University Center", "coordinates": "15,16" },
-      { "id": "F", "name": "Willet Lot", "coordinates": "13,13" },
-      { "id": "G", "name": "Willet Science Center", "coordinates": "12,10" }
+      { "id": "A", "name": "Secondary Gate", "coordinates": "550,-440" },
+      { "id": "B", "name": "Tarver Library", "coordinates": "280,90" },
+      { "id": "C", "name": "Cafeteria", "coordinates": "200,280" },
+      { "id": "D", "name": "Science and Engineering Building", "coordinates": "800,-200" },
+      { "id": "E", "name": "University Center", "coordinates": "-460,90" },
+      { "id": "F", "name": "Willet Lot", "coordinates": "-100,-80" },
+      { "id": "G", "name": "Willet Science Center", "coordinates": "400,-60" }
 
   ],
   "connections": [

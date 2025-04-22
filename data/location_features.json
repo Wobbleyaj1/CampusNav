@@ -1,0 +1,65 @@
+{
+    "UC Back Entrance":[
+        "Athletic Department",
+        "Bell Board Room",
+        "Fitness Center",
+        "Chick-fil-a",
+        "Panda Express",
+        "POD",
+        "Hawkins Arena",
+        "Heritage Hall",
+        "Mail & Document Services",
+        "Presidents Dining Room"
+    ],
+    "UC Main Entrance":[
+        "Athletic Department",
+        "Bell Board Room",
+        "Fitness Center",
+        "Chick-fil-a",
+        "Panda Express",
+        "POD",
+        "Hawkins Arena",
+        "Heritage Hall",
+        "Mail & Document Services",
+        "Presidents Dining Room"
+    ],
+    "Mercer Hall":[
+        "Shorter Hall"
+    ],
+    "Upper Classroom Dorms":[
+        "Sherwood Hall",
+        "Roberts Hall"
+    ],
+    "Upper Historic Quad":[
+        "Groover Hall",
+        "Ryals Hall",
+        "Academic Resource Center",
+        "Willingham Hall",
+        "Music Building",
+        "Newton Plaza"
+    ],
+    "Middle Historic Quad":[
+        "Godsey Administration Building",
+        "Knight Hall",
+        "Ware Hall"
+    ],
+    "Lower Historic Quad":[
+        "Wiggs Hall"
+    ],
+    "Student Center":[
+        "Access and Accommodation",
+        "Office of Campus Life",
+        "Office of Housing and Residence Life",
+        "The Caf",
+        "The Drop",
+        "POD"
+    ],
+    "MEP Housing Complex":[
+        "Boone Hall",
+        "Porter Hall",
+        "Dowell Hall"
+    ],
+    "Willet Science Center":[
+        "Mercer Fabrication Lab"
+    ]
+}

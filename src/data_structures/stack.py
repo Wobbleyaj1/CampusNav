@@ -11,17 +11,19 @@ class Stack:
 
     def pop(self):
         """Remove and return the item at the top of the stack."""
-        if len(self.list) == 0:
+        if not any(self.list):
             raise IndexError("Stack is empty.")
         return self.list.pop()
 
     def peek(self):
+        if not any(self.list):
+            raise IndexError("Stack is empty.")
         """Return the item at the top of the stack without removing it."""
         return self.list[len(self.list)-1]
 
     def is_empty(self) -> bool:
         """Check if the stack is empty."""
-        return len(self.list) == 0
+        return not any(self.list)
 
     def __len__(self):
         """Return the number of items in the stack."""
@@ -34,6 +36,14 @@ class Stack:
             string += i + ' '
         return str(string)
     
+    def __contains__(self, item):
+        """Checks if an item is in the stack."""
+        return item in self.list
+    
+    def clear(self):
+        """Removes all items from the stack."""
+        self.list = []
+
 if __name__ == "__main__":
     s = Stack()
     for i in range(5):

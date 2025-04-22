@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg  # Import for loading images
+import matplotlib.image as mpimg
 
 def plot_locations(locations, background_image_path=None):
     """Plot the locations on a 2D map using matplotlib with an optional background image."""

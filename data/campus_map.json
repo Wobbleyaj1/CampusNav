@@ -3,29 +3,29 @@
         {
             "id": 1,
             "name": "Adams/Winship Lower",
-            "x": 0,
-            "y": 0,
+            "x": -960,
+            "y": -260,
             "pointOfInterest": true
         },
         {
             "id": 2,
             "name": "Adams/Winship Middle",
-            "x": 0,
-            "y": 0,
+            "x": -850,
+            "y": -77,
             "pointOfInterest": true
         },
         {
             "id": 3,
             "name": "Adams/Winship Upper",
-            "x": 0,
-            "y": 0,
+            "x": -875,
+            "y": 90,
             "pointOfInterest": true
         },
         {
             "id": 4,
             "name": "Baseball Stadium",
-            "x": 0,
-            "y": 0,
+            "x": -838,
+            "y": -170,
             "pointOfInterest": true
         },
         {

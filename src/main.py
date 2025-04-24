@@ -149,7 +149,7 @@ def display_map_with_menu(location_manager, route_history, graph):
 def main():
     location_manager = LocationManager()
     route_history = RouteHistory()
-    graph = Graph()
+    graph = graph()
 
     display_map_with_menu(location_manager, route_history, graph)
 

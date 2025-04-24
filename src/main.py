@@ -7,7 +7,7 @@ def main():
     # Initialize components
     location_manager = LocationManager()
     route_history = RouteHistory()
-    graph = Graph()
+    graph = graph()
 
     print("Welcome to Campus Navigation System!")
 

@@ -1,23 +1,31 @@
 # Dictionary module
 
-class Dictionary:
+class twoWayDict():
     def __init__(self):
-        """Initialize the dictionary."""
+        self.dictionary = dict()
 
-    def add(self, key, value):
-        """Add a key-value pair to the dictionary."""
+    def add(self, item_1, item_2):
+        self.dictionary[item_1] = item_2
+        self.dictionary[item_2] = item_1
 
-    def remove(self, key):
-        """Remove a key-value pair from the dictionary."""
+    def delete(self, item):
+        pair = self.dictionary[item]
+        del self.dictionary[item]
+        del self.dictionary[pair]
 
-    def get(self, key):
-        """Retrieve the value associated with a key."""
+    def __len__(self):
+        return len(self.dictionary) // 2
 
-    def contains(self, key):
-        """Check if the dictionary contains a key."""
-
-    def size(self):
-        """Return the number of key-value pairs in the dictionary."""
-
-    def display(self):
-        """Display the dictionary."""
+    def __getitem__(self, key):
+        if key not in self.dictionary:
+            raise KeyError(f'{key} was not found in twoWayDict.')
+        return self.dictionary[key]
+    
+if __name__ == "__main__":
+    d = twoWayDict()
+    d.add(1, 2)
+    d.add(3, 4)
+    for i in range(1, 5):
+        print(f'{i} -> {d[i]}')
+    d.delete(1)
+    v = d[1]

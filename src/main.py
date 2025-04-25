@@ -47,6 +47,7 @@ def display_map_with_menu(location_manager, route_history, graph):
     ax.set_ylabel("Y Coordinate")
     ax.set_title("Campus Map")
     ax.grid(True)
+    ax.set_aspect(aspect = 1006 / 978)
     ax.legend()
 
     # Embed the matplotlib figure into the tkinter window

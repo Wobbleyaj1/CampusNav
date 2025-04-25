@@ -3,260 +3,260 @@
         {
             "id": 1,
             "name": "Adams/Winship Lower",
-            "x": 0,
-            "y": 0,
+            "x": -960,
+            "y": -260,
             "pointOfInterest": true
         },
         {
             "id": 2,
             "name": "Adams/Winship Middle",
-            "x": 0,
-            "y": 0,
+            "x": -850,
+            "y": -85,
             "pointOfInterest": true
         },
         {
             "id": 3,
             "name": "Adams/Winship Upper",
-            "x": 0,
-            "y": 0,
+            "x": -875,
+            "y": 95,
             "pointOfInterest": true
         },
         {
             "id": 4,
             "name": "Baseball Stadium",
-            "x": 0,
-            "y": 0,
+            "x": -840,
+            "y": -170,
             "pointOfInterest": true
         },
         {
             "id": 5,
             "name": "Gardens Apartments",
-            "x": 0,
-            "y": 0,
+            "x": -855,
+            "y": 140,
             "pointOfInterest": true
         },
         {
             "id": 6,
             "name": "UC Back Entrance",
-            "x": 0,
-            "y": 0,
+            "x": -690,
+            "y": 58,
             "pointOfInterest": true
         },
         {
             "id": 7,
             "name": "UC Main Entrance",
-            "x": 0,
-            "y": 0,
+            "x": -475,
+            "y": 265,
             "pointOfInterest": true
         },
         {
             "id": 8,
             "name": "Greek Row",
-            "x": 0,
-            "y": 0,
+            "x": -705,
+            "y": 315,
             "pointOfInterest": true
         },
         {
             "id": 9,
             "name": "Softball Stadium",
-            "x": 0,
-            "y": 0,
+            "x": -395,
+            "y": 35,
             "pointOfInterest": true
         },
         {
             "id": 10,
             "name": "Mercer Hall",
-            "x": 0,
-            "y": 0,
+            "x": -397,
+            "y": 433,
             "pointOfInterest": true
         },
         {
             "id": 11,
             "name": "Upper Classroom Dorms",
-            "x": 0,
-            "y": 0,
+            "x": -550,
+            "y": 570,
             "pointOfInterest": true
         },
         {
             "id": 12,
             "name": "Stetson Hall",
-            "x": 0,
-            "y": 0,
+            "x": -263,
+            "y": 265,
             "pointOfInterest": true
         },
         {
             "id": 13,
             "name": "Jack Tarver Library",
-            "x": 0,
-            "y": 0,
+            "x": -55,
+            "y": 285,
             "pointOfInterest": true
         },
         {
             "id": 14,
             "name": "Upper Historic Quad",
-            "x": 0,
-            "y": 0,
+            "x": -380,
+            "y": 690,
             "pointOfInterest": true
         },
         {
             "id": 15,
             "name": "Middle Historic Quad",
-            "x": 0,
-            "y": 0,
+            "x": -219,
+            "y": 687,
             "pointOfInterest": true
         },
         {
             "id": 16,
             "name": "Lower Historic Quad",
-            "x": 0,
-            "y": 0,
+            "x": -65,
+            "y": 678,
             "pointOfInterest": true
         },
         {
             "id": 17,
             "name": "Student Center",
-            "x": 0,
-            "y": 0,
+            "x": -170,
+            "y": 550,
             "pointOfInterest": true
         },
         {
             "id": 18,
             "name": "MEP Housing Complex",
-            "x": 0,
-            "y": 0,
+            "x": 88,
+            "y": 663,
             "pointOfInterest": true
         },
         {
             "id": 19,
             "name": "Legacy Hall",
-            "x": 0,
-            "y": 0,
+            "x": 267,
+            "y": 560,
             "pointOfInterest": true
         },
         {
             "id": 20,
             "name": "Plunkett Hall",
-            "x": 0,
-            "y": 0,
+            "x": 70,
+            "y": 455,
             "pointOfInterest": true
         },
         {
             "id": 21,
             "name": "Godsey Science Center",
-            "x": 0,
-            "y": 0,
+            "x": 90,
+            "y": 290,
             "pointOfInterest": true
         },
         {
             "id": 22,
             "name": "Willet Science Center",
-            "x": 0,
-            "y": 0,
+            "x": 30,
+            "y": 115,
             "pointOfInterest": true
         },
         {
             "id": 23,
             "name": "Science and Engineering Building",
-            "x": 0,
-            "y": 0,
+            "x": 168,
+            "y": 50,
             "pointOfInterest": true
         },
         {
             "id": 24,
             "name": "Engineering Building",
-            "x": 0,
-            "y": 0,
+            "x": 326,
+            "y": 50,
             "pointOfInterest": true
         },
         {
             "id": 25,
             "name": "Football Stadium",
-            "x": 0,
-            "y": 0,
+            "x": -65,
+            "y": -327,
             "pointOfInterest": true
         },
         {
             "id": -1,
             "name": "Back UC Stairs",
-            "x": 0,
-            "y": 0,
+            "x": -735,
+            "y": 32,
             "pointOfInterest": false
         },
         {
             "id": -2,
             "name": "Adams/Winship/Gardens Gate",
-            "x": 0,
-            "y": 0,
+            "x": -865,
+            "y": 117,
             "pointOfInterest": false
         },
         {
             "id": -3,
             "name": "Behind UC Crosswalk",
-            "x": 0,
-            "y": 0,
+            "x": -745,
+            "y": 90,
             "pointOfInterest": false
         },
         {
             "id": -4,
             "name": "Greek Row Brick Circle",
-            "x": 0,
-            "y": 0,
+            "x": -640,
+            "y": 315,
             "pointOfInterest": false
         },
         {
             "id": -5,
             "name": "Bottom UC Stairs",
-            "x": 0,
-            "y": 0,
+            "x": -400,
+            "y": 280,
             "pointOfInterest": false
         },
         {
             "id": -6,
             "name": "Bear Statue",
-            "x": 0,
-            "y": 0,
+            "x": -400,
+            "y": 310,
             "pointOfInterest": false
         },
         {
             "id": -7,
             "name": "Student Center/Cruz Stairs",
-            "x": 0,
-            "y": 0,
+            "x": -285,
+            "y": 548,
             "pointOfInterest": false
         },
         {
             "id": -8,
             "name": "Jesse Mercer Statue",
-            "x": 0,
-            "y": 0,
+            "x": -290,
+            "y": 620,
             "pointOfInterest": false
         },
         {
             "id": -9,
             "name": "Between Student Center/Wiggs",
-            "x": 0,
-            "y": 0,
+            "x": -105,
+            "y": 590,
             "pointOfInterest": false
         },
         {
             "id": -10,
             "name": "MEP Crosswalk",
-            "x": 0,
-            "y": 0,
+            "x": 30,
+            "y": 663,
             "pointOfInterest": false
         },
         {
             "id": -11,
             "name": "East Campus Plaza",
-            "x": 0,
-            "y": 0,
+            "x": 18,
+            "y": 555,
             "pointOfInterest": false
         },
         {
             "id": -12,
             "name": "4-way Stop",
-            "x": 0,
-            "y": 0,
+            "x": 68,
+            "y": 62,
             "pointOfInterest": false
         }
     ]

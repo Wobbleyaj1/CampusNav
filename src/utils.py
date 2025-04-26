@@ -133,7 +133,7 @@ def plot_locations(locations, background_image_path=None, allow_selection=False)
 
 def select_nearest_location(event, locations):
     """Find the nearest location to the clicked coordinates."""
-    if event.xdata and event.ydata:
+    if event.xdata is not None and event.ydata is not None:
         nearest_location = min(
             locations,
             key=lambda loc: ((loc["x"] - event.xdata) ** 2 + (loc["y"] - event.ydata) ** 2) ** 0.5,

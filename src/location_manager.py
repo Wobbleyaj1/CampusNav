@@ -1,5 +1,5 @@
 import json
-
+from data_structures.dictionary import twoWayDict
 class LocationManager:
     def __init__(self, json_file="data/campus_map.json"):
         # List to store locations with their full structure
@@ -93,7 +93,7 @@ class LocationManager:
                 return location
         return None
 
-    def list_locations(self):
+    def list_location_names(self):
         """List all locations on the campus map."""
         if not self.locations:
             print("No locations available on the campus map.")
@@ -101,3 +101,21 @@ class LocationManager:
             print("Current locations on the campus map:")
             for location in self.locations:
                 print(f"- {location['name']}: ({location['x']}, {location['y']})")
+
+    def get_location_ids(self) -> list[int]:
+        ids = []
+        for location in self.locations:
+            ids.append(location['id'])
+        return ids
+    
+    def get_location_id(self, name: str) -> int:
+        for location in self.locations:
+            if location['name'] == name:
+                return location['id']
+        raise KeyError(f'The name "{name}" does not exit.')
+    
+    def get_location_name(self, id: int) -> str:
+        for location in self.locations:
+            if location['id'] == id:
+                return location['name']
+        raise KeyError(f'The id "{id}" does not exist.')

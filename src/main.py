@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from location_manager import LocationManager
 from route_history import RouteHistory
 from data_structures.graph import Graph
+from graph_builder import graphBuilder
 from utils import extract_coordinates_and_labels, add_background_image, get_location_details, refresh_map
 
 def display_map_with_menu(location_manager, route_history, graph):
@@ -152,7 +153,8 @@ def main():
     route_history = RouteHistory()
     graph = Graph()
 
-    display_map_with_menu(location_manager, route_history, graph)
+    graphBuilder(graph, location_manager.get_location_ids())
+    print(graph)
 
 if __name__ == "__main__":
     main()

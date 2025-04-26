@@ -136,23 +136,35 @@ def display_map_with_menu(location_manager, route_history, graph):
         comboDest.current(0)
 
         def submit():
-            currLocName = comboCurr.get()
-            destLocName = comboDest.get()
-            print(currLocName, destLocName)
+            currName = comboCurr.get()
+            destName = comboDest.get()
+            print(currName, destName)
             dialog.destroy()
 
-            
+            if currName == destName:
+                return
+
+            currId = location_manager.get_location_id(currName)
+            destId = location_manager.get_location_id(destName)
+
+            path, totalDistance = graph.find_shortest_path(currId, destId)
+            namedPath = []
+            for id in path:
+                namedPath.append(location_manager.get_location_name(id))
+            print(namedPath, totalDistance)
+
+            resultDialog = tk.Toplevel(root)
+            resultDialog.title('Find Shortest Route')
+            resultFrame = ttk.Frame(resultDialog)
+            resultFrame.pack(padx=10, pady=10)
+            for i in range(len(namedPath) - 1):
+                ttk.Label(resultFrame, text=f'{namedPath[i]} -> {namedPath[i+1]}').grid(row=i, column=0, padx=5, pady=5)
+            ttk.Label(resultFrame, text=f'Total Distance: {totalDistance}m').grid(row=i+1, column=0, padx=5, pady=5)
+
+            route_history.add_route((namedPath, totalDistance))
 
         ttk.Button(dialog, text='OK', command=submit).pack(pady=5)
 
-        # start_location = simpledialog.askstring("Input", "Enter start location:", parent=root)
-        # end_location = simpledialog.askstring("Input", "Enter end location:", parent=root)
-        # route = graph.find_shortest_path(start_location, end_location)
-        # if route:
-        #     print(f"Shortest route: {route}")
-        #     route_history.add_route(route)
-        # else:
-        #     print("No route found between the locations.")
 
     def view_route_history():
         history = route_history.get_history()

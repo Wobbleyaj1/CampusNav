@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from location_manager import LocationManager
 from route_history import RouteHistory
 from data_structures.graph import Graph
-from utils import extract_coordinates_and_labels, add_background_image, get_location_details, refresh_map
+from utils import extract_coordinates_and_labels, add_background_image, get_location_details, refresh_map, select_nearest_location
 
 def display_map_with_menu(location_manager, route_history, graph):
     """Display the map and menu options in a single GUI window."""
@@ -93,19 +93,43 @@ def display_map_with_menu(location_manager, route_history, graph):
         cid = fig.canvas.mpl_connect('button_press_event', on_click)
 
     def edit_location():
-        location_name = simpledialog.askstring("Input", "Enter location name to edit:", parent=root)
-        new_coordinates = simpledialog.askstring("Input", "Enter new coordinates (x,y):", parent=root)
-        location_manager.edit_location(location_name, new_coordinates)
-        print("Location updated successfully!")
-        root.destroy()
-        display_map_with_menu(location_manager, route_history, graph)
+        """Allow the user to select a location on the map to edit."""
+        print("Click on the map to select a location to edit.")
+
+        def on_click(event):
+            nearest_location = select_nearest_location(event, location_manager.locations)
+            if nearest_location:
+                print(f"Selected location: {nearest_location['name']}")
+                fig.canvas.mpl_disconnect(cid)
+
+                # Prompt for new coordinates
+                new_coordinates = simpledialog.askstring("Input", "Enter new coordinates (x,y):", parent=root)
+                location_manager.edit_location(nearest_location["name"], new_coordinates)
+                print("Location updated successfully!")
+                root.destroy()
+                display_map_with_menu(location_manager, route_history, graph)
+
+        # Connect the event handler to the matplotlib figure
+        cid = fig.canvas.mpl_connect('button_press_event', on_click)
 
     def delete_location():
-        location_name = simpledialog.askstring("Input", "Enter location name to delete:", parent=root)
-        location_manager.delete_location(location_name)
-        print("Location deleted successfully!")
-        root.destroy()
-        display_map_with_menu(location_manager, route_history, graph)
+        """Allow the user to select a location on the map to delete."""
+        print("Click on the map to select a location to delete.")
+
+        def on_click(event):
+            nearest_location = select_nearest_location(event, location_manager.locations)
+            if nearest_location:
+                print(f"Selected location: {nearest_location['name']}")
+                fig.canvas.mpl_disconnect(cid)
+
+                # Confirm deletion
+                location_manager.delete_location(nearest_location["name"])
+                print("Location deleted successfully!")
+                root.destroy()
+                display_map_with_menu(location_manager, route_history, graph)
+
+        # Connect the event handler to the matplotlib figure
+        cid = fig.canvas.mpl_connect('button_press_event', on_click)
 
     def search_location():
         location_name = simpledialog.askstring("Input", "Enter location name to search:", parent=root)
@@ -116,14 +140,34 @@ def display_map_with_menu(location_manager, route_history, graph):
             print("Location not found.")
 
     def find_shortest_route():
-        start_location = simpledialog.askstring("Input", "Enter start location:", parent=root)
-        end_location = simpledialog.askstring("Input", "Enter end location:", parent=root)
-        route = graph.find_shortest_path(start_location, end_location)
-        if route:
-            print(f"Shortest route: {route}")
-            route_history.add_route(route)
-        else:
-            print("No route found between the locations.")
+        """Allow the user to select start and end locations on the map to find the shortest route."""
+        print("Click on the map to select the start and end locations.")
+
+        # Variables to store the selected locations
+        selected_locations = []
+
+        def on_click(event):
+            nearest_location = select_nearest_location(event, location_manager.locations)
+            if nearest_location:
+                selected_locations.append(nearest_location)
+                print(f"Selected location: {nearest_location['name']}")
+
+                # If two locations are selected, find the shortest route
+                if len(selected_locations) == 2:
+                    fig.canvas.mpl_disconnect(cid)
+                    start_location = selected_locations[0]["name"]
+                    end_location = selected_locations[1]["name"]
+                    route = graph.find_shortest_path(start_location, end_location)
+                    if route:
+                        print(f"Shortest route: {route}")
+                        route_history.add_route(route)
+                    else:
+                        print("No route found between the locations.")
+                    root.destroy()
+                    display_map_with_menu(location_manager, route_history, graph)
+
+        # Connect the event handler to the matplotlib figure
+        cid = fig.canvas.mpl_connect('button_press_event', on_click)
 
     def view_route_history():
         history = route_history.get_history()

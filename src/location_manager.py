@@ -102,6 +102,13 @@ class LocationManager:
             for location in self.locations:
                 print(f"- {location['name']}: ({location['x']}, {location['y']})")
 
+    def get_location_names(self) -> list[str]:
+        l = []
+        for location in self.locations:
+            if location['pointOfInterest']:
+                l.append(location['name'])
+        return l
+
     def get_location_ids(self) -> list[int]:
         ids = []
         for location in self.locations:

@@ -117,14 +117,42 @@ def display_map_with_menu(location_manager, route_history, graph):
             print("Location not found.")
 
     def find_shortest_route():
-        start_location = simpledialog.askstring("Input", "Enter start location:", parent=root)
-        end_location = simpledialog.askstring("Input", "Enter end location:", parent=root)
-        route = graph.find_shortest_path(start_location, end_location)
-        if route:
-            print(f"Shortest route: {route}")
-            route_history.add_route(route)
-        else:
-            print("No route found between the locations.")
+        dialog = tk.Toplevel(root)
+        dialog.title('Find Shortest Route')
+
+        frame = ttk.Frame(dialog)
+        frame.pack(padx=10, pady=10)
+
+        ttk.Label(frame, text='Current Location:').grid(row=0, column=0, padx=5, pady=5)
+
+        comboCurr = ttk.Combobox(frame, values=location_manager.get_location_names())
+        comboCurr.grid(row=1, column=0, padx=5, pady=5)
+        comboCurr.current(0)
+
+        ttk.Label(frame, text='Destination:').grid(row=0, column=1, padx=5, pady=5)
+
+        comboDest = ttk.Combobox(frame, values=location_manager.get_location_names())
+        comboDest.grid(row=1, column=1, padx=5, pady=5)
+        comboDest.current(0)
+
+        def submit():
+            currLocName = comboCurr.get()
+            destLocName = comboDest.get()
+            print(currLocName, destLocName)
+            dialog.destroy()
+
+            
+
+        ttk.Button(dialog, text='OK', command=submit).pack(pady=5)
+
+        # start_location = simpledialog.askstring("Input", "Enter start location:", parent=root)
+        # end_location = simpledialog.askstring("Input", "Enter end location:", parent=root)
+        # route = graph.find_shortest_path(start_location, end_location)
+        # if route:
+        #     print(f"Shortest route: {route}")
+        #     route_history.add_route(route)
+        # else:
+        #     print("No route found between the locations.")
 
     def view_route_history():
         history = route_history.get_history()
@@ -148,6 +176,7 @@ def display_map_with_menu(location_manager, route_history, graph):
 
     root.mainloop()
 
+
 def main():
     location_manager = LocationManager()
     route_history = RouteHistory()
@@ -155,6 +184,8 @@ def main():
 
     graphBuilder(graph, location_manager.get_location_ids())
     print(graph)
+
+    display_map_with_menu(location_manager, route_history, graph)
 
 if __name__ == "__main__":
     main()

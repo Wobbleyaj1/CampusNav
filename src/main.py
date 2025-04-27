@@ -162,6 +162,21 @@ def display_map_with_menu(location_manager, route_history, graph):
                     if route:
                         locationNames = [location_manager.get_location_name(id) for id in route]
                         print(f"Shortest Route: {locationNames}\nDistance: {totalDistance}")
+                       
+                        # Clear the previous route
+                        for line in ax.lines:
+                            line.remove()
+
+                        # Extract coordinates for the route
+                        route_coords = [
+                            (location_manager.get_location_coordinates(id)) for id in route
+                        ]
+                        x_coords, y_coords = zip(*route_coords)
+
+                        # Draw the route on the map
+                        ax.plot(x_coords, y_coords, color="red", linewidth=2, label="Shortest Route")
+                        ax.legend()
+                        canvas.draw()
                     else:
                         print("No route found between the locations.")
 

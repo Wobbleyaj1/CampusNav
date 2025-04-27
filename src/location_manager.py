@@ -126,3 +126,10 @@ class LocationManager:
             if location['id'] == id:
                 return location['name']
         raise KeyError(f'The id "{id}" does not exist.')
+    
+    def get_location_coordinates(self, id: int) -> tuple[int, int]:
+        """Get the coordinates (x, y) of a location by its ID."""
+        for location in self.locations:
+            if location["id"] == id:
+                return location["x"], location["y"]
+        raise KeyError(f'The id "{id}" does not exist.')

@@ -13,6 +13,27 @@ from route_history import RouteHistory
 from data_structures.graph import Graph
 from graph_builder import graphBuilder
 from utils import extract_coordinates_and_labels, add_background_image, get_location_details, refresh_map, select_nearest_location
+from matplotlib.animation import FuncAnimation
+
+def animate_marker(ax, canvas, x, y, root):
+    """Animate a blinking marker at the given coordinates."""
+    marker, = ax.plot([], [], 'ro', markersize=12)
+
+    def update(frame):
+        # Alternate between visible and invisible
+        if frame % 2 == 0:
+            marker.set_data([x], [y]) 
+        else:
+            marker.set_data([], [])
+        return marker,
+
+    # Create the animation
+    ani = FuncAnimation(
+        ax.figure, update, frames=10, interval=500, blit=True, repeat=False
+    )
+
+    # Redraw the canvas to show the animation
+    canvas.draw()
 
 def display_map_with_menu(location_manager, route_history, graph):
     """Display the map and menu options in a single GUI window."""
@@ -133,12 +154,44 @@ def display_map_with_menu(location_manager, route_history, graph):
         cid = fig.canvas.mpl_connect('button_press_event', on_click)
 
     def search_location():
-        location_name = simpledialog.askstring("Input", "Enter location name to search:", parent=root)
-        result = location_manager.search_location(location_name)
-        if result:
-            print(f"Location found: {result}")
-        else:
-            print("Location not found.")
+        """Allow the user to search for a location using a combo box and display its coordinates."""
+        # Get the list of location names
+        location_names = [location["name"] for location in location_manager.locations]
+
+        if not location_names:
+            print("No locations available to search.")
+            return
+
+        # Create a popup window
+        popup = tk.Toplevel(root)
+        popup.title("Search Location")
+        popup.geometry("300x150")
+
+        # Add a label
+        label = tk.Label(popup, text="Select a location:")
+        label.pack(pady=10)
+
+        # Add a combo box
+        combo_box = ttk.Combobox(popup, values=location_names, state="readonly")
+        combo_box.pack(pady=10)
+        combo_box.set("Select a location")
+
+        # Function to handle selection
+        def on_select():
+            selected_name = combo_box.get()
+            if selected_name:
+                result = location_manager.search_location(selected_name)
+                if result:
+                    x, y = result['x'], result['y']
+                    print(f"Location found: {result['name']} at coordinates {x}, {y}")
+                    animate_marker(ax, canvas, x, y, root)
+                else:
+                    print("Location not found.")
+            popup.destroy()
+
+        # Add a button to confirm selection
+        confirm_button = tk.Button(popup, text="Search", command=on_select)
+        confirm_button.pack(pady=10)
 
     def find_shortest_route():
         """Allow the user to select start and end locations on the map to find the shortest route."""

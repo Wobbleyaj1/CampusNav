@@ -212,7 +212,6 @@ def main():
     graph = Graph()
 
     graphBuilder(graph, location_manager.get_location_ids())
-    print(graph)
 
     display_map_with_menu(location_manager, route_history, graph)
 

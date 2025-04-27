@@ -12,7 +12,7 @@ from location_manager import LocationManager
 from route_history import RouteHistory
 from data_structures.graph import Graph
 from graph_builder import graphBuilder
-from utils import extract_coordinates_and_labels, add_background_image, get_location_details, refresh_map
+from utils import extract_coordinates_and_labels, add_background_image, get_location_details, refresh_map, select_nearest_location
 
 def display_map_with_menu(location_manager, route_history, graph):
     """Display the map and menu options in a single GUI window."""
@@ -94,19 +94,43 @@ def display_map_with_menu(location_manager, route_history, graph):
         cid = fig.canvas.mpl_connect('button_press_event', on_click)
 
     def edit_location():
-        location_name = simpledialog.askstring("Input", "Enter location name to edit:", parent=root)
-        new_coordinates = simpledialog.askstring("Input", "Enter new coordinates (x,y):", parent=root)
-        location_manager.edit_location(location_name, new_coordinates)
-        print("Location updated successfully!")
-        root.destroy()
-        display_map_with_menu(location_manager, route_history, graph)
+        """Allow the user to select a location on the map to edit."""
+        print("Click on the map to select a location to edit.")
+
+        def on_click(event):
+            nearest_location = select_nearest_location(event, location_manager.locations)
+            if nearest_location:
+                print(f"Selected location: {nearest_location['name']}")
+                fig.canvas.mpl_disconnect(cid)
+
+                # Prompt for new coordinates
+                new_coordinates = simpledialog.askstring("Input", "Enter new coordinates (x,y):", parent=root)
+                location_manager.edit_location(nearest_location["name"], new_coordinates)
+                print("Location updated successfully!")
+                root.destroy()
+                display_map_with_menu(location_manager, route_history, graph)
+
+        # Connect the event handler to the matplotlib figure
+        cid = fig.canvas.mpl_connect('button_press_event', on_click)
 
     def delete_location():
-        location_name = simpledialog.askstring("Input", "Enter location name to delete:", parent=root)
-        location_manager.delete_location(location_name)
-        print("Location deleted successfully!")
-        root.destroy()
-        display_map_with_menu(location_manager, route_history, graph)
+        """Allow the user to select a location on the map to delete."""
+        print("Click on the map to select a location to delete.")
+
+        def on_click(event):
+            nearest_location = select_nearest_location(event, location_manager.locations)
+            if nearest_location:
+                print(f"Selected location: {nearest_location['name']}")
+                fig.canvas.mpl_disconnect(cid)
+
+                # Confirm deletion
+                location_manager.delete_location(nearest_location["name"])
+                print("Location deleted successfully!")
+                root.destroy()
+                display_map_with_menu(location_manager, route_history, graph)
+
+        # Connect the event handler to the matplotlib figure
+        cid = fig.canvas.mpl_connect('button_press_event', on_click)
 
     def search_location():
         location_name = simpledialog.askstring("Input", "Enter location name to search:", parent=root)
@@ -117,54 +141,32 @@ def display_map_with_menu(location_manager, route_history, graph):
             print("Location not found.")
 
     def find_shortest_route():
-        dialog = tk.Toplevel(root)
-        dialog.title('Find Shortest Route')
+        """Allow the user to select start and end locations on the map to find the shortest route."""
+        print("Click on the map to select the start and end locations.")
 
-        frame = ttk.Frame(dialog)
-        frame.pack(padx=10, pady=10)
+        # Variables to store the selected locations
+        selected_locations = []
 
-        ttk.Label(frame, text='Current Location:').grid(row=0, column=0, padx=5, pady=5)
+        def on_click(event):
+            nearest_location = select_nearest_location(event, location_manager.locations)
+            if nearest_location:
+                selected_locations.append(nearest_location)
+                print(f"Selected location: {nearest_location['name']}")
 
-        comboCurr = ttk.Combobox(frame, values=location_manager.get_location_names())
-        comboCurr.grid(row=1, column=0, padx=5, pady=5)
-        comboCurr.current(0)
+                # If two locations are selected, find the shortest route
+                if len(selected_locations) == 2:
+                    fig.canvas.mpl_disconnect(cid)
+                    start_location = selected_locations[0]["id"]
+                    end_location = selected_locations[1]["id"]
+                    route, totalDistance = graph.find_shortest_path(start_location, end_location)
+                    if route:
+                        locationNames = [location_manager.get_location_name(id) for id in route]
+                        print(f"Shortest Route: {locationNames}\nDistance: {totalDistance}")
+                    else:
+                        print("No route found between the locations.")
 
-        ttk.Label(frame, text='Destination:').grid(row=0, column=1, padx=5, pady=5)
-
-        comboDest = ttk.Combobox(frame, values=location_manager.get_location_names())
-        comboDest.grid(row=1, column=1, padx=5, pady=5)
-        comboDest.current(0)
-
-        def submit():
-            currName = comboCurr.get()
-            destName = comboDest.get()
-            print(currName, destName)
-            dialog.destroy()
-
-            if currName == destName:
-                return
-
-            currId = location_manager.get_location_id(currName)
-            destId = location_manager.get_location_id(destName)
-
-            path, totalDistance = graph.find_shortest_path(currId, destId)
-            namedPath = []
-            for id in path:
-                namedPath.append(location_manager.get_location_name(id))
-            print(namedPath, totalDistance)
-
-            resultDialog = tk.Toplevel(root)
-            resultDialog.title('Find Shortest Route')
-            resultFrame = ttk.Frame(resultDialog)
-            resultFrame.pack(padx=10, pady=10)
-            for i in range(len(namedPath) - 1):
-                ttk.Label(resultFrame, text=f'{namedPath[i]} -> {namedPath[i+1]}').grid(row=i, column=0, padx=5, pady=5)
-            ttk.Label(resultFrame, text=f'Total Distance: {totalDistance}m').grid(row=i+1, column=0, padx=5, pady=5)
-
-            route_history.add_route((namedPath, totalDistance))
-
-        ttk.Button(dialog, text='OK', command=submit).pack(pady=5)
-
+        # Connect the event handler to the matplotlib figure
+        cid = fig.canvas.mpl_connect('button_press_event', on_click)
 
     def view_route_history():
         history = route_history.get_history()

@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from location_manager import LocationManager
 from route_history import RouteHistory
 from data_structures.graph import Graph
+from graph_builder import graphBuilder
 from utils import extract_coordinates_and_labels, add_background_image, get_location_details, refresh_map, select_nearest_location
 
 def display_map_with_menu(location_manager, route_history, graph):
@@ -155,16 +156,29 @@ def display_map_with_menu(location_manager, route_history, graph):
                 # If two locations are selected, find the shortest route
                 if len(selected_locations) == 2:
                     fig.canvas.mpl_disconnect(cid)
-                    start_location = selected_locations[0]["name"]
-                    end_location = selected_locations[1]["name"]
-                    route = graph.find_shortest_path(start_location, end_location)
+                    start_location = selected_locations[0]["id"]
+                    end_location = selected_locations[1]["id"]
+                    route, totalDistance = graph.find_shortest_path(start_location, end_location)
                     if route:
-                        print(f"Shortest route: {route}")
-                        route_history.add_route(route)
+                        locationNames = [location_manager.get_location_name(id) for id in route]
+                        print(f"Shortest Route: {locationNames}\nDistance: {totalDistance}")
+                       
+                        # Clear the previous route
+                        for line in ax.lines:
+                            line.remove()
+
+                        # Extract coordinates for the route
+                        route_coords = [
+                            (location_manager.get_location_coordinates(id)) for id in route
+                        ]
+                        x_coords, y_coords = zip(*route_coords)
+
+                        # Draw the route on the map
+                        ax.plot(x_coords, y_coords, color="red", linewidth=2, label="Shortest Route")
+                        ax.legend()
+                        canvas.draw()
                     else:
                         print("No route found between the locations.")
-                    root.destroy()
-                    display_map_with_menu(location_manager, route_history, graph)
 
         # Connect the event handler to the matplotlib figure
         cid = fig.canvas.mpl_connect('button_press_event', on_click)
@@ -191,10 +205,13 @@ def display_map_with_menu(location_manager, route_history, graph):
 
     root.mainloop()
 
+
 def main():
     location_manager = LocationManager()
     route_history = RouteHistory()
     graph = Graph()
+
+    graphBuilder(graph, location_manager.get_location_ids())
 
     display_map_with_menu(location_manager, route_history, graph)
 

@@ -4,12 +4,15 @@ class Graph:
     def __init__(self):
         """Initialize the graph."""
         self.paths = dict[int, dict[int, int]]()
+        self.node_count = 0
+        self.edge_count = 0
 
     def add_node(self, id: int):
         """Add a new node to the graph."""
         if id in self.paths:
             raise ValueError(f'{id} is already a node.')
         self.paths[id] = dict()
+        self.node_count += 1
 
     def add_edge(self, id_1: int, id_2: int, weight:int):
         """Add a bidirectional edge between two nodes."""
@@ -21,6 +24,8 @@ class Graph:
         self.paths[id_1][id_2] = weight
         self.paths[id_2][id_1] = weight
 
+        self.edge_count += 1
+
     def remove_node(self, id: int):
         """Remove a node and all connected edges."""
         connectedNodes = list(self.paths[id])
@@ -28,12 +33,19 @@ class Graph:
         for node in connectedNodes:
             self.paths[node].pop(id)
 
+        self.node_count -= 1
+
     def remove_edge(self, id_1: int, id_2: int):
         self.paths[id_1].pop(id_2)
         self.paths[id_2].pop(id_1)
 
+        self.edge_count -= 1
+
     def get_edge_weight(self, id_1:int, id_2:int) -> int:
-        return self.paths[id_1][id_2]
+        try:
+            return self.paths[id_1][id_2]
+        except:
+            raise KeyError(f'Edge between {id_1} & {id_2} does not exist.')
 
     def find_shortest_path(self, curr_id: int, end_id: int, _visited: set = set()) -> tuple[list[int], int]:
         """Find the shortest path using Depth First Search"""

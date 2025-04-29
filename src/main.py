@@ -130,18 +130,26 @@ class CampusNavigationApp:
         """Allow the user to search for a location using a combo box and display its information."""
         clear_current_marker(self.current_marker, self.ax)
 
+        # Check if a popup is already open
+        if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
+            self.current_popup.lift()  # Bring the existing popup to the front
+            return
+
+        # Create a new popup
+        self.current_popup = create_popup_window("Search Location", 300, 150)
+
+        label = tk.Label(self.current_popup, text="Select a location:")
+        label.pack(pady=10)
+
         location_names = [location["name"] for location in self.location_manager.locations]
 
         if not location_names:
             print("No locations available to search.")
+            self.current_popup.destroy()
+            self.current_popup = None
             return
 
-        popup = create_popup_window("Search Location", 300, 150)
-
-        label = tk.Label(popup, text="Select a location:")
-        label.pack(pady=10)
-
-        combo_box = ttk.Combobox(popup, values=location_names, state="readonly")
+        combo_box = ttk.Combobox(self.current_popup, values=location_names, state="readonly")
         combo_box.pack(pady=10)
         combo_box.set("Select a location")
 
@@ -168,9 +176,10 @@ class CampusNavigationApp:
                     self.canvas.draw()
                 else:
                     print("Location not found.")
-            popup.destroy()
+            self.current_popup.destroy()
+            self.current_popup = None
 
-        confirm_button = tk.Button(popup, text="Search", command=on_select)
+        confirm_button = tk.Button(self.current_popup, text="Search", command=on_select)
         confirm_button.pack(pady=10)
 
     def find_shortest_route(self):
@@ -239,35 +248,35 @@ class CampusNavigationApp:
 
         self.clear_info_card()
 
+        # Check if a popup is already open
+        if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
+            self.current_popup.lift()
+            return
+
+        # Create a new popup
+        self.current_popup = create_popup_window("Route History", 400, 300)
+
         history = self.route_history.get_history()
 
         if not history:
             print("No route history available.")
+            self.current_popup.destroy()
+            self.current_popup = None
             return
 
-        # Create a popup window
-        popup = create_popup_window("Route History", 400, 300)
-
-        # Variables to track the current route index
         current_index = tk.IntVar(value=len(history) - 1)
 
-        # Label to display the current route
-        route_label = tk.Label(popup, text="", wraplength=350, justify="left")
+        route_label = tk.Label(self.current_popup, text="", wraplength=350, justify="left")
         route_label.pack(pady=20)
 
         def update_route_label_and_map():
             """Update the label to show the current route."""
-            # Get the current route from history
             route_text = history[current_index.get()]
             location_names, distance = parse_route_details(route_text)
-
-            # Format the label to show only "from", "to", and "distance"
             route_label.config(
                 text=format_route_label(current_index.get(), history, location_names, distance),
                 font=("Arial", 18)
             )
-
-            # Update the route on the map
             update_route_on_map(self.ax, self.canvas, self.location_manager, location_names)
 
         def go_back():
@@ -283,13 +292,12 @@ class CampusNavigationApp:
                 update_route_label_and_map()
 
         # Navigation buttons
-        back_button = tk.Button(popup, text="Back", command=go_back)
+        back_button = tk.Button(self.current_popup, text="Back", command=go_back)
         back_button.pack(side=tk.LEFT, padx=10, pady=10)
 
-        forward_button = tk.Button(popup, text="Forward", command=go_forward)
+        forward_button = tk.Button(self.current_popup, text="Forward", command=go_forward)
         forward_button.pack(side=tk.RIGHT, padx=10, pady=10)
 
-        # Initialize the label with the first route
         update_route_label_and_map()
 
     def exit_application(self):

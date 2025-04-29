@@ -15,7 +15,7 @@ from graph_builder import graphBuilder
 from utils import extract_coordinates_and_labels, add_background_image, get_location_details, refresh_map, select_nearest_location
 from matplotlib.animation import FuncAnimation
 
-def animate_marker(ax, canvas, x, y, root):
+def animate_marker(ax, canvas, x, y):
     """Animate a blinking marker at the given coordinates."""
     marker, = ax.plot([], [], 'ro', markersize=12)
 
@@ -77,82 +77,6 @@ def display_map_with_menu(location_manager, route_history, graph):
     canvas_widget = canvas.get_tk_widget()
     canvas_widget.pack(fill=tk.BOTH, expand=True)
 
-    # Define menu actions
-    def add_location():
-        """Allow the user to select a location on the current map and input details."""
-        print("Click on the map to select a location.")
-
-        # Variable to store the selected coordinates
-        selected_coordinates = []
-
-        # Event handler for mouse clicks
-        def on_click(event):
-            if event.xdata and event.ydata:
-                # Ensure only one click is processed
-                if selected_coordinates:
-                    return
-
-                selected_coordinates.append((int(event.xdata), int(event.ydata)))
-                print(f"Selected coordinates: {selected_coordinates[0]}")
-
-                # Disconnect the event handler after the first click
-                fig.canvas.mpl_disconnect(cid)
-
-                # Open a custom dialog to get location details
-                location_name, point_of_interest = get_location_details(root)
-                if not location_name:
-                    print("No location name provided. Operation canceled.")
-                    return
-
-                # Add the new location to the location manager
-                coordinates = f"{selected_coordinates[0][0]},{selected_coordinates[0][1]}"
-                location_manager.add_location(location_name, coordinates, point_of_interest)
-                print(f"Location '{location_name}' added at coordinates {coordinates} with pointOfInterest={point_of_interest}!")
-
-                refresh_map(ax, canvas, selected_coordinates[0][0], selected_coordinates[0][1], location_name)
-
-        # Connect the event handler to the matplotlib figure
-        cid = fig.canvas.mpl_connect('button_press_event', on_click)
-
-    def edit_location():
-        """Allow the user to select a location on the map to edit."""
-        print("Click on the map to select a location to edit.")
-
-        def on_click(event):
-            nearest_location = select_nearest_location(event, location_manager.locations)
-            if nearest_location:
-                print(f"Selected location: {nearest_location['name']}")
-                fig.canvas.mpl_disconnect(cid)
-
-                # Prompt for new coordinates
-                new_coordinates = simpledialog.askstring("Input", "Enter new coordinates (x,y):", parent=root)
-                location_manager.edit_location(nearest_location["name"], new_coordinates)
-                print("Location updated successfully!")
-                root.destroy()
-                display_map_with_menu(location_manager, route_history, graph)
-
-        # Connect the event handler to the matplotlib figure
-        cid = fig.canvas.mpl_connect('button_press_event', on_click)
-
-    def delete_location():
-        """Allow the user to select a location on the map to delete."""
-        print("Click on the map to select a location to delete.")
-
-        def on_click(event):
-            nearest_location = select_nearest_location(event, location_manager.locations)
-            if nearest_location:
-                print(f"Selected location: {nearest_location['name']}")
-                fig.canvas.mpl_disconnect(cid)
-
-                # Confirm deletion
-                location_manager.delete_location(nearest_location["name"])
-                print("Location deleted successfully!")
-                root.destroy()
-                display_map_with_menu(location_manager, route_history, graph)
-
-        # Connect the event handler to the matplotlib figure
-        cid = fig.canvas.mpl_connect('button_press_event', on_click)
-
     def search_location():
         """Allow the user to search for a location using a combo box and display its coordinates."""
         # Get the list of location names
@@ -184,7 +108,7 @@ def display_map_with_menu(location_manager, route_history, graph):
                 if result:
                     x, y = result['x'], result['y']
                     print(f"Location found: {result['name']} at coordinates {x}, {y}")
-                    animate_marker(ax, canvas, x, y, root)
+                    animate_marker(ax, canvas, x, y)
                 else:
                     print("Location not found.")
             popup.destroy()
@@ -243,9 +167,6 @@ def display_map_with_menu(location_manager, route_history, graph):
             print(route)
 
     menu_buttons = [
-        # ("Add a new location", add_location),
-        # ("Edit an existing location", edit_location),
-        # ("Delete a location", delete_location),
         ("Search for a location", search_location),
         ("Find shortest route", find_shortest_route),
         ("View route history", view_route_history),

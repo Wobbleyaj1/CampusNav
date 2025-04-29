@@ -9,8 +9,9 @@ import matplotlib.pyplot as plt
 
 # Local Imports
 from location_manager import LocationManager
-from route_history import RouteHistory
+from data_structures.stack import Stack
 from data_structures.graph import Graph
+from data_structures.tree import Tree
 from utils import (
     extract_coordinates_and_labels,
     add_background_image,
@@ -33,13 +34,16 @@ class CampusNavigationApp:
         self.current_marker = None
 
         self.location_manager = LocationManager()
-        self.route_history = RouteHistory()
+        self.route_history = Stack()
         self.graph = Graph()
+        self.location_tree = Tree()        
 
         for id in self.location_manager.get_location_ids():
             self.graph.add_node(id)
 
         self.graph.load_from_json("data/campus_map.json")
+
+        self._initialize_location_tree()
 
         # Create the map and menu frames
         self.map_frame = tk.Frame(self.root)
@@ -64,6 +68,7 @@ class CampusNavigationApp:
             ("Search for a location", self.search_location),
             ("Find shortest route", self.find_shortest_route),
             ("View route history", self.view_route_history),
+            ("View location tree", self.build_location_tree),
             ("Exit", self.exit_application),
         ]
         add_menu_buttons(self.menu_frame, menu_buttons)
@@ -130,6 +135,12 @@ class CampusNavigationApp:
         """Allow the user to search for a location using a combo box and display its information."""
         clear_current_marker(self.current_marker, self.ax)
 
+        # Clear any existing shortest route lines
+        for line in self.ax.lines:
+            line.remove()
+
+        self.clear_info_card()
+
         # Check if a popup is already open
         if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
             self.current_popup.lift()  # Bring the existing popup to the front
@@ -144,9 +155,7 @@ class CampusNavigationApp:
         location_names = [location["name"] for location in self.location_manager.locations]
 
         if not location_names:
-            print("No locations available to search.")
             self.current_popup.destroy()
-            self.current_popup = None
             return
 
         combo_box = ttk.Combobox(self.current_popup, values=location_names, state="readonly")
@@ -159,7 +168,6 @@ class CampusNavigationApp:
                 result = self.location_manager.search_location(selected_name)
                 if result:
                     x, y = result['x'], result['y']
-                    print(f"Location found: {result['name']} at coordinates {x}, {y}")
                     self.clear_info_card()
                     self.current_marker = self.ax.plot(x, y, 'ro', markersize=12)
 
@@ -175,9 +183,8 @@ class CampusNavigationApp:
                     render_location_info(self.ax, self.canvas, text, x + 100, y)
                     self.canvas.draw()
                 else:
-                    print("Location not found.")
+                    return
             self.current_popup.destroy()
-            self.current_popup = None
 
         confirm_button = tk.Button(self.current_popup, text="Search", command=on_select)
         confirm_button.pack(pady=10)
@@ -189,7 +196,17 @@ class CampusNavigationApp:
 
         self.clear_info_card()
 
-        print("Click on the map to select the start and end locations.")
+        # Check if a popup is already open
+        if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
+            self.current_popup.lift()  # Bring the existing popup to the front
+            return
+
+        # Create a popup dialog to inform the user
+        self.current_popup = tk.Toplevel(self.root)
+        self.current_popup.title("Select Locations")
+        self.current_popup.geometry("300x100")
+        label = tk.Label(self.current_popup, text="Click on the map to select the start and end locations.")
+        label.pack(pady=10)
 
         # Disconnect the normal click handler
         self.fig.canvas.mpl_disconnect(self.normal_click_handler)
@@ -201,7 +218,6 @@ class CampusNavigationApp:
             nearest_location = select_nearest_location(event, self.location_manager.get_visible_Locations())
             if nearest_location:
                 selected_locations.append(nearest_location)
-                print(f"Selected location: {nearest_location['name']}")
 
                 # If two locations are selected, find the shortest route
                 if len(selected_locations) == 2:
@@ -212,10 +228,9 @@ class CampusNavigationApp:
                     if route:
                         location_names = [self.location_manager.get_location_name(location_id) for location_id in route]
                         route_text = f"Shortest Route: {location_names} (Distance: {total_distance}m)"
-                        print(route_text)
 
-                        # Add the route to the history
-                        self.route_history.add_route(route_text)
+                        # Add the route to the history directly using Stack
+                        self.route_history.push(route_text)
 
                         # Clear the previous route
                         for line in self.ax.lines:
@@ -231,8 +246,10 @@ class CampusNavigationApp:
                         self.ax.plot(x_coords, y_coords, color="red", linewidth=2, label="Shortest Route")
                         self.ax.legend()
                         self.canvas.draw()
-                    else:
-                        print("No route found between the selected locations.")
+
+                    # Destroy the popup after the route is calculated
+                    if self.current_popup is not None:
+                        self.current_popup.destroy()
 
                     # Reconnect the normal click handler
                     self.normal_click_handler = self.fig.canvas.mpl_connect('button_press_event', self.normal_click)
@@ -243,25 +260,23 @@ class CampusNavigationApp:
     def view_route_history(self):
         """Display route history with forward and back navigation."""
         # Clear the current marker if it exists
-        if self.current_marker and self.current_marker[0] in self.ax.lines:
-            self.current_marker[0].remove()
+        clear_current_marker(self.current_marker, self.ax)
 
         self.clear_info_card()
 
         # Check if a popup is already open
         if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
             self.current_popup.lift()
+            self.current_popup.destroy()
             return
 
         # Create a new popup
         self.current_popup = create_popup_window("Route History", 400, 300)
 
-        history = self.route_history.get_history()
+        history = self.route_history.list
 
         if not history:
-            print("No route history available.")
             self.current_popup.destroy()
-            self.current_popup = None
             return
 
         current_index = tk.IntVar(value=len(history) - 1)
@@ -300,6 +315,51 @@ class CampusNavigationApp:
 
         update_route_label_and_map()
 
+    def _initialize_location_tree(self):
+        """Initialize the tree structure for campus locations."""
+        root = "Campus"
+        self.location_tree.add_node(root)
+
+        # Group locations by their categories from the JSON file
+        categories = {}
+        for location in self.location_manager.locations:
+            category = location.get("category", "Miscellaneous")
+            location_name = location["name"]
+
+            if category not in categories:
+                categories[category] = []
+                self.location_tree.add_node(category)
+                self.location_tree.nodes[root].append(category)
+
+            categories[category].append(location_name)
+            self.location_tree.add_node(location_name)
+            self.location_tree.nodes[category].append(location_name)
+
+    def build_location_tree(self):
+        """Build and display the tree structure for campus locations in a popup."""
+        # Check if a popup is already open
+        if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
+            self.current_popup.lift()  # Bring the existing popup to the front
+            self.current_popup.destroy()
+            return
+
+        # Create a popup window to display the tree
+        self.current_popup = create_popup_window("Location Tree", 400, 300)
+
+        tree_view = ttk.Treeview(self.current_popup)
+        tree_view.pack(fill=tk.BOTH, expand=True)
+
+        # Add nodes to the Treeview widget
+        def add_tree_nodes(parent, node):
+            for child in self.location_tree.get_children(node):
+                tree_view.insert(parent, "end", child, text=child)
+                add_tree_nodes(child, child)
+
+        # Add the root node and recursively add its children
+        root = "Campus"
+        tree_view.insert("", "end", root, text=root)
+        add_tree_nodes(root, root)
+
     def exit_application(self):
         """Exit the application cleanly."""
         print("Thank you for using Campus Navigation System!")
@@ -309,7 +369,6 @@ class CampusNavigationApp:
     def run(self):
         """Run the main application loop."""
         self.root.mainloop()
-
 
 if __name__ == "__main__":
     app = CampusNavigationApp()

@@ -3,6 +3,7 @@
         {
             "id": 1,
             "name": "Adams/Winship Lower",
+            "category": "Dorms",
             "x": -960,
             "y": -260,
             "pointOfInterest": true
@@ -10,6 +11,7 @@
         {
             "id": 2,
             "name": "Adams/Winship Middle",
+            "category": "Dorms",
             "x": -850,
             "y": -85,
             "pointOfInterest": true
@@ -17,6 +19,7 @@
         {
             "id": 3,
             "name": "Adams/Winship Upper",
+            "category": "Dorms",
             "x": -875,
             "y": 95,
             "pointOfInterest": true
@@ -24,6 +27,7 @@
         {
             "id": 4,
             "name": "Baseball Stadium",
+            "category": "Sports",
             "x": -840,
             "y": -170,
             "pointOfInterest": true
@@ -31,6 +35,7 @@
         {
             "id": 5,
             "name": "Gardens Apartments",
+            "category": "Dorms",
             "x": -855,
             "y": 140,
             "pointOfInterest": true
@@ -38,6 +43,7 @@
         {
             "id": 6,
             "name": "UC Back Entrance",
+            "category": "Food",
             "x": -690,
             "y": 58,
             "pointOfInterest": true
@@ -45,6 +51,7 @@
         {
             "id": 7,
             "name": "UC Main Entrance",
+            "category": "Food",
             "x": -475,
             "y": 265,
             "pointOfInterest": true
@@ -52,6 +59,7 @@
         {
             "id": 8,
             "name": "Greek Row",
+            "category": "Dorms",
             "x": -705,
             "y": 315,
             "pointOfInterest": true
@@ -59,6 +67,7 @@
         {
             "id": 9,
             "name": "Softball Stadium",
+            "category": "Sports",
             "x": -395,
             "y": 35,
             "pointOfInterest": true
@@ -66,6 +75,7 @@
         {
             "id": 10,
             "name": "Mercer Hall",
+            "category": "Dorms",
             "x": -397,
             "y": 433,
             "pointOfInterest": true
@@ -73,6 +83,7 @@
         {
             "id": 11,
             "name": "Upper Classroom Dorms",
+            "category": "Dorms",
             "x": -550,
             "y": 570,
             "pointOfInterest": true
@@ -80,6 +91,7 @@
         {
             "id": 12,
             "name": "Stetson Hall",
+            "category": "Academics",
             "x": -263,
             "y": 265,
             "pointOfInterest": true
@@ -87,6 +99,7 @@
         {
             "id": 13,
             "name": "Jack Tarver Library",
+            "category": "Academics",
             "x": -55,
             "y": 285,
             "pointOfInterest": true
@@ -94,6 +107,7 @@
         {
             "id": 14,
             "name": "Upper Historic Quad",
+            "category": "Quad",
             "x": -380,
             "y": 690,
             "pointOfInterest": true
@@ -101,6 +115,7 @@
         {
             "id": 15,
             "name": "Middle Historic Quad",
+            "category": "Quad",
             "x": -219,
             "y": 687,
             "pointOfInterest": true
@@ -108,6 +123,7 @@
         {
             "id": 16,
             "name": "Lower Historic Quad",
+            "category": "Quad",
             "x": -65,
             "y": 678,
             "pointOfInterest": true
@@ -115,6 +131,7 @@
         {
             "id": 17,
             "name": "Student Center",
+            "category": "Food",
             "x": -170,
             "y": 550,
             "pointOfInterest": true
@@ -122,6 +139,7 @@
         {
             "id": 18,
             "name": "MEP Housing Complex",
+            "category": "Dorms",
             "x": 88,
             "y": 663,
             "pointOfInterest": true
@@ -129,6 +147,7 @@
         {
             "id": 19,
             "name": "Legacy Hall",
+            "category": "Dorms",
             "x": 267,
             "y": 560,
             "pointOfInterest": true
@@ -136,6 +155,7 @@
         {
             "id": 20,
             "name": "Plunkett Hall",
+            "category": "Dorms",
             "x": 70,
             "y": 455,
             "pointOfInterest": true
@@ -143,6 +163,7 @@
         {
             "id": 21,
             "name": "Godsey Science Center",
+            "category": "Academics",
             "x": 90,
             "y": 290,
             "pointOfInterest": true
@@ -150,6 +171,7 @@
         {
             "id": 22,
             "name": "Willet Science Center",
+            "category": "Academics",
             "x": 30,
             "y": 115,
             "pointOfInterest": true
@@ -157,6 +179,7 @@
         {
             "id": 23,
             "name": "Science and Engineering Building",
+            "category": "Academics",
             "x": 168,
             "y": 50,
             "pointOfInterest": true
@@ -164,6 +187,7 @@
         {
             "id": 24,
             "name": "Engineering Building",
+            "category": "Academics",
             "x": 326,
             "y": 50,
             "pointOfInterest": true
@@ -171,6 +195,7 @@
         {
             "id": 25,
             "name": "Football Stadium",
+            "category": "Sports",
             "x": -65,
             "y": -327,
             "pointOfInterest": true

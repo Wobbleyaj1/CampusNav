@@ -1,26 +1,19 @@
-# Tree module
-
 class Tree:
     def __init__(self):
-        """Initialize the tree."""
+        self.nodes = {}
+    
+    def add_node(self, node):
+        if node not in self.nodes:
+            self.nodes[node] = []
 
-    def add_node(self, value):
-        """Add a node to the tree."""
+    def add_edge(self, parent, child):
+        """Add an edge between a parent and child node."""
+        if parent not in self.nodes:
+            self.add_node(parent)
+        if child not in self.nodes:
+            self.add_node(child)
+        self.nodes[parent].append(child)
 
-    def remove_node(self, value):
-        """Remove a node from the tree."""
-
-    def find(self, value):
-        """Find a node in the tree."""
-
-    def traverse_in_order(self):
-        """Traverse the tree in-order."""
-
-    def traverse_pre_order(self):
-        """Traverse the tree pre-order."""
-
-    def traverse_post_order(self):
-        """Traverse the tree post-order."""
-
-    def display(self):
-        """Display the tree."""
+    def get_children(self, node):
+        """Get the children of a given node."""
+        return self.nodes.get(node, [])

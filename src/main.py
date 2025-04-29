@@ -3,7 +3,7 @@ import os
 
 # Third-Party Imports
 import tkinter as tk
-from tkinter import simpledialog, ttk
+from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 
@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 from location_manager import LocationManager
 from route_history import RouteHistory
 from data_structures.graph import Graph
-from graph_builder import graphBuilder
 from utils import extract_coordinates_and_labels, add_background_image, select_nearest_location
 from matplotlib.animation import FuncAnimation
 
@@ -185,7 +184,10 @@ def main():
     route_history = RouteHistory()
     graph = Graph()
 
-    graphBuilder(graph, location_manager.get_location_ids())
+    for id in location_manager.get_location_ids():
+        graph.add_node(id)
+
+    graph.load_from_json("data/campus_map.json")
 
     display_map_with_menu(location_manager, route_history, graph)
 

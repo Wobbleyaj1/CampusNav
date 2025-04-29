@@ -1,5 +1,6 @@
 # An Undirected Graph data structure
 import heapq
+import json
 
 class Graph:
     def __init__(self):
@@ -74,6 +75,20 @@ class Graph:
         for node in self.paths:
             s += f'{node}: {self.paths[node]}\n'
         return s
+    
+    def load_from_json(self, json_file: str):
+        """Load nodes and edges from a JSON file."""
+        try:
+            with open(json_file, "r") as file:
+                data = json.load(file)
+                connections = data.get("connections", [])
+                for connection in connections:
+                    self.add_edge(connection['from'], connection['to'], connection['distance'])
+            print('Graph built successfully from JSON.')
+        except json.JSONDecodeError:
+            print(f"Error decoding JSON from {json_file}. Graph will have no connections.")
+        except FileNotFoundError:
+            print(f"JSON file {json_file} not found.")
 
 
 

@@ -31,6 +31,9 @@ class LocationManager:
         except Exception as e:
             print(f"Error saving locations: {e}")
 
+    def get_visible_Locations(self):
+        return [loc for loc in self.locations if loc['pointOfInterest']]
+
     def add_location(self, name, coordinates, point_of_interest):
         """Add a new location."""
         # Check if the location already exists
@@ -58,7 +61,7 @@ class LocationManager:
         }
         self.locations.append(new_location)
         print(f"Location '{name}' added with coordinates {coordinates} and pointOfInterest={point_of_interest}.")
-        self.save_locations()
+        # self.save_locations()
 
     def edit_location(self, name, new_coordinates):
         """Edit an existing location."""

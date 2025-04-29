@@ -60,11 +60,11 @@ def display_map_with_menu(location_manager, route_history, graph):
 
     # Plot the map using matplotlib
     fig, ax = plt.subplots(figsize=(8, 6))
-    x_coords, y_coords, labels = extract_coordinates_and_labels(location_manager.locations)
+    x_coords, y_coords, labels = extract_coordinates_and_labels(location_manager.get_visible_Locations())
     add_background_image(ax, "./assets/mercer_map.png")
     ax.scatter(x_coords, y_coords, color="blue", label="Locations")
-    for i, label in enumerate(labels):
-        ax.annotate(label, (x_coords[i], y_coords[i]), textcoords="offset points", xytext=(5, 5), ha="center")
+    # for i, label in enumerate(labels):
+    #     ax.annotate(label, (x_coords[i], y_coords[i]), textcoords="offset points", xytext=(5, 5), ha="center")
     ax.set_xlabel("X Coordinate")
     ax.set_ylabel("Y Coordinate")
     ax.set_title("Campus Map")
@@ -201,7 +201,7 @@ def display_map_with_menu(location_manager, route_history, graph):
         selected_locations = []
 
         def on_click(event):
-            nearest_location = select_nearest_location(event, location_manager.locations)
+            nearest_location = select_nearest_location(event, location_manager.get_visible_Locations())
             if nearest_location:
                 selected_locations.append(nearest_location)
                 print(f"Selected location: {nearest_location['name']}")
@@ -214,7 +214,7 @@ def display_map_with_menu(location_manager, route_history, graph):
                     route, totalDistance = graph.find_shortest_path(start_location, end_location)
                     if route:
                         locationNames = [location_manager.get_location_name(id) for id in route]
-                        print(f"Shortest Route: {locationNames}\nDistance: {totalDistance}")
+                        print(f"Shortest Route: {locationNames}{start_location} to {end_location}\nDistance: {totalDistance}")
                        
                         # Clear the previous route
                         for line in ax.lines:

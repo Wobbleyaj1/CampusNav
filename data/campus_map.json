@@ -258,6 +258,111 @@
             "x": 68,
             "y": 62,
             "pointOfInterest": false
+        },
+        {
+            "id": -13,
+            "name": "Upperclassman Dorm Connector",
+            "x": -635,
+            "y": 570,
+            "pointOfInterest": false
+        },
+        {
+            "id": -14,
+            "name": "Football Parking",
+            "x": 15,
+            "y": -326,
+            "pointOfInterest": false
+        },
+        {
+            "id": -15,
+            "name": "Football Parking Entrance",
+            "x": 28,
+            "y": -281,
+            "pointOfInterest": false
+        },
+        {
+            "id": -16,
+            "name": "Football Parking Road",
+            "x": 75,
+            "y": -281,
+            "pointOfInterest": false
+        },
+        {
+            "id": -17,
+            "name": "Lower UC Gate",
+            "x": -528,
+            "y": -206,
+            "pointOfInterest": false
+        },
+        {
+            "id": -18,
+            "name": "Football Winship 1",
+            "x": -109,
+            "y": -378,
+            "pointOfInterest": false
+        },
+        {
+            "id": -19,
+            "name": "Football Winship 2",
+            "x": -353,
+            "y": -483,
+            "pointOfInterest": false
+        },
+        {
+            "id": -20,
+            "name": "Football Winship 3",
+            "x": -434,
+            "y": -466,
+            "pointOfInterest": false
+        },
+        {
+            "id": -21,
+            "name": "Football Winship 4",
+            "x": -535,
+            "y": -499,
+            "pointOfInterest": false
+        },
+        {
+            "id": -22,
+            "name": "Football Winship 5",
+            "x": -639,
+            "y": -395,
+            "pointOfInterest": false
+        },
+        {
+            "id": -23,
+            "name": "Football Winship 6",
+            "x": -833,
+            "y": -401,
+            "pointOfInterest": false
+        },
+        {
+            "id": -24,
+            "name": "Football Winship 7",
+            "x": -961,
+            "y": -323,
+            "pointOfInterest": false
+        },
+        {
+            "id": -25,
+            "name": "Upper Dorm Upper Quad Connect",
+            "x": -501,
+            "y": 654,
+            "pointOfInterest": false
+        },
+        {
+            "id": -26,
+            "name": "Cricket's Pools",
+            "x": -313,
+            "y": 478,
+            "pointOfInterest": false
+        },
+        {
+            "id": -27,
+            "name": "Upper Dorm Passthrough",
+            "x": -441,
+            "y": 544,
+            "pointOfInterest": false
         }
     ],
     "connections": [
@@ -313,8 +418,13 @@
         },
         {
             "from": -4,
-            "to": 11,
+            "to": -13,
             "distance": 158
+        },
+        {
+            "from": -13,
+            "to": 11,
+            "distance": 0
         },
         {
             "from": -4,
@@ -353,18 +463,33 @@
         },
         {
             "from": 10,
-            "to": -7,
+            "to": -26,
             "distance": 78
         },
         {
-            "from": 11,
+            "from": -26,
             "to": -7,
-            "distance": 52
+            "distance": 0
         },
         {
             "from": 11,
-            "to": 14,
+            "to": -27,
+            "distance": 52
+        },
+        {
+            "from": -27,
+            "to": -7,
+            "distance": 0
+        },
+        {
+            "from": 11,
+            "to": -25,
             "distance": 101
+        },
+        {
+            "from": -25,
+            "to": 14,
+            "distance": 0
         },
         {
             "from": 14,
@@ -478,8 +603,23 @@
         },
         {
             "from": -12,
-            "to": 25,
+            "to": -16,
             "distance": 265
+        },
+        {
+            "from": -16,
+            "to": -15,
+            "distance": 0
+        },
+        {
+            "from": -15,
+            "to": -14,
+            "distance": 0
+        },
+        {
+            "from": -14,
+            "to": 25,
+            "distance": 0
         },
         {
             "from": -5,
@@ -488,13 +628,53 @@
         },
         {
             "from": 9,
-            "to": 4,
+            "to": -17,
             "distance": 294
         },
         {
-            "from": 1,
-            "to": 25,
+            "from": -17,
+            "to": 4,
+            "distance": 0
+        },
+        {
+            "from": 25,
+            "to": -18,
             "distance": 575
+        },
+        {
+            "from": -18,
+            "to": -19,
+            "distance": 0
+        },
+        {
+            "from": -19,
+            "to": -20,
+            "distance": 0
+        },
+        {
+            "from": -20,
+            "to": -21,
+            "distance": 0
+        },
+        {
+            "from": -21,
+            "to": -22,
+            "distance": 0
+        },
+        {
+            "from": -22,
+            "to": -23,
+            "distance": 0
+        },
+        {
+            "from": -23,
+            "to": -24,
+            "distance": 0
+        },
+        {
+            "from": -24,
+            "to": 1,
+            "distance": 0
         }
     ]
 }

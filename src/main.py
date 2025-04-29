@@ -12,278 +12,242 @@ import matplotlib.pyplot as plt
 from location_manager import LocationManager
 from route_history import RouteHistory
 from data_structures.graph import Graph
-from utils import extract_coordinates_and_labels, add_background_image, select_nearest_location
+from utils import (
+    extract_coordinates_and_labels,
+    add_background_image,
+    select_nearest_location,
+    parse_route_details,
+    format_route_label,
+    update_route_on_map,
+    create_popup_window,
+    clear_current_marker,
+    render_location_info,
+    add_menu_buttons,
+)
 
-current_marker = None
-normal_click_handler = None
+class CampusNavigationApp:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Campus Navigation System")
+        self.root.geometry("1000x800")
 
-def display_map_with_menu(location_manager, route_history, graph):
-    """Display the map and menu options in a single GUI window."""
-    global current_marker, normal_click_handler
+        self.current_marker = None
 
-    # Create the main tkinter window
-    root = tk.Tk()
-    root.title("Campus Navigation System")
-    root.geometry("1000x800")
+        self.location_manager = LocationManager()
+        self.route_history = RouteHistory()
+        self.graph = Graph()
 
-    def exit_application():
-        """Exit the application cleanly."""
-        print("Thank you for using Campus Navigation System!")
-        root.destroy()
-        os._exit(0)
+        for id in self.location_manager.get_location_ids():
+            self.graph.add_node(id)
 
-    root.protocol("WM_DELETE_WINDOW", exit_application)
+        self.graph.load_from_json("data/campus_map.json")
 
-    # Create a frame for the map
-    map_frame = tk.Frame(root)
-    map_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        # Create the map and menu frames
+        self.map_frame = tk.Frame(self.root)
+        self.map_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-    # Create a frame for the menu
-    menu_frame = tk.Frame(root)
-    menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
+        self.menu_frame = tk.Frame(self.root)
+        self.menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-    # Plot the map using matplotlib
-    fig, ax = plt.subplots(figsize=(8, 6))
-    x_coords, y_coords, labels = extract_coordinates_and_labels(location_manager.get_visible_Locations())
-    add_background_image(ax, "./assets/mercer_map.png")
-    ax.scatter(x_coords, y_coords, color="blue", label="Locations")
-    # for i, label in enumerate(labels):
-    #     ax.annotate(label, (x_coords[i], y_coords[i]), textcoords="offset points", xytext=(5, 5), ha="center")
-    ax.set_xlabel("X Coordinate")
-    ax.set_ylabel("Y Coordinate")
-    ax.set_title("Campus Map")
-    ax.set_aspect(aspect = 1006 / 978)
-    ax.legend()
+        # Initialize the map
+        self.fig, self.ax = plt.subplots(figsize=(8, 6))
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.map_frame)
+        self.canvas_widget = self.canvas.get_tk_widget()
+        self.canvas_widget.pack(fill=tk.BOTH, expand=True)
 
-    # Embed the matplotlib figure into the tkinter window
-    canvas = FigureCanvasTkAgg(fig, master=map_frame)
-    canvas_widget = canvas.get_tk_widget()
-    canvas_widget.pack(fill=tk.BOTH, expand=True)
+        self.initialize_map()
 
-    def search_location():
-        """Allow the user to search for a location using a combo box and display its coordinates."""
-        global current_marker
+        # Connect the normal click handler after initializing the map
+        self.normal_click_handler = self.fig.canvas.mpl_connect('button_press_event', self.normal_click)
 
-        # Remove the previous marker if it exists
-        if current_marker and current_marker[0] in ax.lines:
-            current_marker[0].remove()
+        # Add menu buttons
+        menu_buttons = [
+            ("Search for a location", self.search_location),
+            ("Find shortest route", self.find_shortest_route),
+            ("View route history", self.view_route_history),
+            ("Exit", self.exit_application),
+        ]
+        add_menu_buttons(self.menu_frame, menu_buttons)
 
-        # Get the list of location names
-        location_names = [location["name"] for location in location_manager.locations]
+        self.root.protocol("WM_DELETE_WINDOW", self.exit_application)
+
+    def initialize_map(self):
+        """Initialize the map with locations and background."""
+        x_coords, y_coords, labels = extract_coordinates_and_labels(
+            self.location_manager.get_visible_Locations()
+        )
+        add_background_image(self.ax, "./assets/mercer_map.png")
+        self.ax.scatter(x_coords, y_coords, color="blue", label="Locations")
+        self.ax.set_xlabel("X Coordinate")
+        self.ax.set_ylabel("Y Coordinate")
+        self.ax.set_title("Campus Map")
+        self.ax.set_aspect(aspect=1006 / 978)
+        self.ax.legend()
+
+    def clear_info_card(self):
+        """Clear the currently displayed info card."""
+        if hasattr(render_location_info, "previous_text_obj") and render_location_info.previous_text_obj:
+            if render_location_info.previous_text_obj in self.ax.texts:
+                render_location_info.previous_text_obj.remove()
+            render_location_info.previous_text_obj = None
+
+        if hasattr(render_location_info, "previous_box") and render_location_info.previous_box:
+            if render_location_info.previous_box in self.ax.patches:
+                render_location_info.previous_box.remove()
+            render_location_info.previous_box = None
+
+        self.canvas.draw()
+
+    def normal_click(self, event):
+        """Handle normal click events on the map."""
+        clear_current_marker(self.current_marker, self.ax)
+
+        self.clear_info_card()
+
+        nearest_location = select_nearest_location(event, self.location_manager.get_visible_Locations())
+
+        if nearest_location is None:
+            return
+
+        x, y = nearest_location['x'], nearest_location['y']
+
+        # Add a static red dot at the selected location
+        self.current_marker = self.ax.plot(x, y, 'ro', markersize=12)
+
+        # Display the info card
+        text = nearest_location['name'] + '\n'
+
+        if nearest_location['name'] in self.location_manager.location_features:
+            text += '\nContains:'
+            for feature in self.location_manager.location_features[nearest_location['name']]:
+                text += '\n- ' + feature
+        else:
+            text += '\nContains no notable\nfeatures or buildings.'
+
+        # Offset the info card position slightly to avoid overlap with the dot
+        render_location_info(self.ax, self.canvas, text, x + 100, y)
+
+    def search_location(self):
+        """Allow the user to search for a location using a combo box and display its information."""
+        clear_current_marker(self.current_marker, self.ax)
+
+        location_names = [location["name"] for location in self.location_manager.locations]
 
         if not location_names:
             print("No locations available to search.")
             return
 
-        popup = tk.Toplevel(root)
-        popup.title("Search Location")
-        popup.geometry("300x150")
+        popup = create_popup_window("Search Location", 300, 150)
 
-        # Add a label
         label = tk.Label(popup, text="Select a location:")
         label.pack(pady=10)
 
-        # Add a combo box
         combo_box = ttk.Combobox(popup, values=location_names, state="readonly")
         combo_box.pack(pady=10)
         combo_box.set("Select a location")
 
-        # Function to handle selection
         def on_select():
-            global current_marker
-
             selected_name = combo_box.get()
             if selected_name:
-                result = location_manager.search_location(selected_name)
+                result = self.location_manager.search_location(selected_name)
                 if result:
                     x, y = result['x'], result['y']
                     print(f"Location found: {result['name']} at coordinates {x}, {y}")
-                    
-                    # Clear any previous marker and info card
-                    clear_info_card()
+                    self.clear_info_card()
+                    self.current_marker = self.ax.plot(x, y, 'ro', markersize=12)
 
-                    # Add a static red dot at the selected location
-                    current_marker = ax.plot(x, y, 'ro', markersize=12)
-
-                    # Display the info card
                     text = result['name'] + '\n'
-                    if result['name'] in location_manager.location_features:
+                    if result['name'] in self.location_manager.location_features:
                         text += '\nContains:'
-                        for feature in location_manager.location_features[result['name']]:
-                            text += '\n-' + feature
+                        for feature in self.location_manager.location_features[result['name']]:
+                            text += '\n- ' + feature
                     else:
                         text += '\nContains no notable\nfeatures or buildings.'
 
-                    render_location_info(text)
-
-                    # Redraw the canvas
-                    canvas.draw()
+                    # Offset the info card position slightly to avoid overlap with the dot
+                    render_location_info(self.ax, self.canvas, text, x + 100, y)
+                    self.canvas.draw()
                 else:
                     print("Location not found.")
             popup.destroy()
 
-        # Add a button to confirm selection
         confirm_button = tk.Button(popup, text="Search", command=on_select)
         confirm_button.pack(pady=10)
 
-    textX, textY = 350, -70
-
-    def clear_info_card():
-        """Clear the currently displayed info card."""
-        if hasattr(render_location_info, "previous_text_obj") and render_location_info.previous_text_obj:
-            if render_location_info.previous_text_obj in ax.texts:
-                render_location_info.previous_text_obj.remove()
-            render_location_info.previous_text_obj = None
-
-        if hasattr(render_location_info, "previous_box") and render_location_info.previous_box:
-            if render_location_info.previous_box in ax.patches:
-                render_location_info.previous_box.remove()
-            render_location_info.previous_box = None
-
-        canvas.draw()
-
-    def render_location_info(text: str):
-        clear_info_card()
-
-        # Render the new text
-        text_obj = ax.text(textX, textY, text, va='top', ha='left')
-        renderer = canvas.get_renderer()
-        bbox = text_obj.get_window_extent(renderer=renderer)
-        inv = ax.transData.inverted()
-        bbox_data = bbox.transformed(inv)
-
-        # Draw a box around the text
-        width = bbox_data.width
-        height = bbox_data.height
-        box = FancyBboxPatch((textX - 10, textY - height - 10), width + 20, height + 20,
-                            boxstyle="round,pad=3", edgecolor='black',
-                            facecolor='lightyellow', zorder=1)
-        ax.add_patch(box)
-
-        # Save references to the current text and box
-        render_location_info.previous_text_obj = text_obj
-        render_location_info.previous_box = box
-
-        # Render to canvas
-        canvas.draw()
-
-
-    def normal_click(event):
-        """Handle normal click events on the map."""
-        global current_marker
-
-        # Remove the previous marker if it exists
-        if current_marker and current_marker[0] in ax.lines:
-            current_marker[0].remove()
-        
-        clear_info_card()
-
-        nearest_location = select_nearest_location(event, location_manager.get_visible_Locations())
-    
-        if nearest_location is None:
-            return
-
-        x, y = nearest_location['x'], nearest_location['y']
-        
-        # Add a static red dot at the selected location
-        current_marker = ax.plot(x, y, 'ro', markersize=12)
-
-        # Display the info card
-        text = nearest_location['name'] + '\n'
-
-        if nearest_location['name'] in location_manager.location_features:
-            text += '\nContains:'
-
-            for feature in location_manager.location_features[nearest_location['name']]:
-                text += '\n-' + feature
-        else:
-            text += '\nContains no notable\nfeatures or buildings.'
-
-        render_location_info(text)
-        
-    normal_click_handler = fig.canvas.mpl_connect('button_press_event', normal_click)
-
-    def find_shortest_route():
+    def find_shortest_route(self):
         """Allow the user to select start and end locations on the map to find the shortest route."""
-        global current_marker, normal_click_handler
+        # Clear the current marker if it exists
+        clear_current_marker(self.current_marker, self.ax)
 
-        # Remove the previous marker if it exists
-        if current_marker and current_marker[0] in ax.lines:
-            current_marker[0].remove()
-
-        clear_info_card()
-
-        fig.canvas.mpl_disconnect(normal_click_handler)
+        self.clear_info_card()
 
         print("Click on the map to select the start and end locations.")
+
+        # Disconnect the normal click handler
+        self.fig.canvas.mpl_disconnect(self.normal_click_handler)
 
         # Variables to store the selected locations
         selected_locations = []
 
         def on_click(event):
-            global normal_click_handler
-
-            nearest_location = select_nearest_location(event, location_manager.get_visible_Locations())
+            nearest_location = select_nearest_location(event, self.location_manager.get_visible_Locations())
             if nearest_location:
                 selected_locations.append(nearest_location)
                 print(f"Selected location: {nearest_location['name']}")
 
                 # If two locations are selected, find the shortest route
                 if len(selected_locations) == 2:
-                    fig.canvas.mpl_disconnect(cid)
+                    self.fig.canvas.mpl_disconnect(cid)  # Disconnect the shortest route click handler
                     start_location = selected_locations[0]["id"]
                     end_location = selected_locations[1]["id"]
-                    route, totalDistance = graph.find_shortest_path(start_location, end_location)
+                    route, total_distance = self.graph.find_shortest_path(start_location, end_location)
                     if route:
-                        locationNames = [location_manager.get_location_name(id) for id in route]
-                        route_text = f"Shortest Route: {locationNames} (Distance: {totalDistance}m)"
+                        location_names = [self.location_manager.get_location_name(location_id) for location_id in route]
+                        route_text = f"Shortest Route: {location_names} (Distance: {total_distance}m)"
                         print(route_text)
 
                         # Add the route to the history
-                        route_history.add_route(route_text)
-                       
+                        self.route_history.add_route(route_text)
+
                         # Clear the previous route
-                        for line in ax.lines:
+                        for line in self.ax.lines:
                             line.remove()
 
                         # Extract coordinates for the route
                         route_coords = [
-                            (location_manager.get_location_coordinates(id)) for id in route
+                            self.location_manager.get_location_coordinates(location_id) for location_id in route
                         ]
                         x_coords, y_coords = zip(*route_coords)
 
                         # Draw the route on the map
-                        ax.plot(x_coords, y_coords, color="red", linewidth=2, label="Shortest Route")
-                        ax.legend()
-                        canvas.draw()
+                        self.ax.plot(x_coords, y_coords, color="red", linewidth=2, label="Shortest Route")
+                        self.ax.legend()
+                        self.canvas.draw()
                     else:
-                        print("No route found between the locations.")
-                    
+                        print("No route found between the selected locations.")
+
                     # Reconnect the normal click handler
-                    normal_click_handler = fig.canvas.mpl_connect('button_press_event', normal_click)
+                    self.normal_click_handler = self.fig.canvas.mpl_connect('button_press_event', self.normal_click)
 
         # Connect the event handler for selecting locations
-        cid = fig.canvas.mpl_connect('button_press_event', on_click)
+        cid = self.fig.canvas.mpl_connect('button_press_event', on_click)
 
-    def view_route_history():
-        global current_marker
-
-        # Remove the previous marker if it exists
-        if current_marker and current_marker[0] in ax.lines:
-            current_marker[0].remove()
-            
+    def view_route_history(self):
         """Display route history with forward and back navigation."""
-        clear_info_card()
-        history = route_history.get_history()
+        # Clear the current marker if it exists
+        if self.current_marker and self.current_marker[0] in self.ax.lines:
+            self.current_marker[0].remove()
+
+        self.clear_info_card()
+
+        history = self.route_history.get_history()
 
         if not history:
             print("No route history available.")
             return
 
         # Create a popup window
-        popup = tk.Toplevel(root)
-        popup.title("Route History")
-        popup.geometry("400x300")
+        popup = create_popup_window("Route History", 400, 300)
 
         # Variables to track the current route index
         current_index = tk.IntVar(value=len(history) - 1)
@@ -294,46 +258,18 @@ def display_map_with_menu(location_manager, route_history, graph):
 
         def update_route_label_and_map():
             """Update the label to show the current route."""
-            
             # Get the current route from history
             route_text = history[current_index.get()]
-
-            route_details = route_text.split(":")[1].strip()
-            location_names_part = route_details.split(" (")[0]
-            location_names = location_names_part.strip("[]").replace("'", "").split(", ")
-
-            distance_start = route_text.rfind("(Distance: ") + len("(Distance: ")
-            distance_end = route_text.rfind("m)")
-            distance = route_text[distance_start:distance_end].strip()
+            location_names, distance = parse_route_details(route_text)
 
             # Format the label to show only "from", "to", and "distance"
-            if len(location_names) >= 2:
-                from_location = location_names[0]
-                to_location = location_names[-1]
-                route_index = f"Route {current_index.get() + 1}/{len(history)}"
-                route_label.config(
-                    text=f"{route_index}\nFrom: {from_location}\nTo: {to_location}\nDistance: {distance}m",
-                    font=("Arial", 18)
-                )
-            else:
-                route_label.config(text="Invalid route data.")
+            route_label.config(
+                text=format_route_label(current_index.get(), history, location_names, distance),
+                font=("Arial", 18)
+            )
 
-            # Convert location names to IDs
-            location_ids = [location_manager.get_location_id(name) for name in location_names]
-            
-            # Clear the previous route line from the map
-            for line in ax.lines:
-                if line.get_label() == "Shortest Route":
-                    line.remove()
-
-            # Get coordinates for the route and draw it on the map
-            route_coords = [
-                location_manager.get_location_coordinates(location_id) for location_id in location_ids
-            ]
-            x_coords, y_coords = zip(*route_coords)
-            ax.plot(x_coords, y_coords, color="red", linewidth=2, label="Shortest Route")
-            ax.legend()
-            canvas.draw()
+            # Update the route on the map
+            update_route_on_map(self.ax, self.canvas, self.location_manager, location_names)
 
         def go_back():
             """Go to the previous route."""
@@ -357,31 +293,17 @@ def display_map_with_menu(location_manager, route_history, graph):
         # Initialize the label with the first route
         update_route_label_and_map()
 
-    menu_buttons = [
-        ("Search for a location", search_location),
-        ("Find shortest route", find_shortest_route),
-        ("View route history", view_route_history),
-        ("Exit", exit_application),
-    ]
+    def exit_application(self):
+        """Exit the application cleanly."""
+        print("Thank you for using Campus Navigation System!")
+        self.root.destroy()
+        os._exit(0)
 
-    for text, command in menu_buttons:
-        button = tk.Button(menu_frame, text=text, command=command)
-        button.pack(side=tk.LEFT, padx=5, pady=5)
+    def run(self):
+        """Run the main application loop."""
+        self.root.mainloop()
 
-    root.mainloop()
-
-
-def main():
-    location_manager = LocationManager()
-    route_history = RouteHistory()
-    graph = Graph()
-
-    for id in location_manager.get_location_ids():
-        graph.add_node(id)
-
-    graph.load_from_json("data/campus_map.json")
-
-    display_map_with_menu(location_manager, route_history, graph)
 
 if __name__ == "__main__":
-    main()
+    app = CampusNavigationApp()
+    app.run()

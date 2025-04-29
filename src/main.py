@@ -78,6 +78,7 @@ def display_map_with_menu(location_manager, route_history, graph):
 
     def search_location():
         """Allow the user to search for a location using a combo box and display its coordinates."""
+        clear_info_card()
         # Get the list of location names
         location_names = [location["name"] for location in location_manager.locations]
 
@@ -118,9 +119,25 @@ def display_map_with_menu(location_manager, route_history, graph):
 
     textX, textY = 350, -70
 
-    def render_location_info(text: str):
-        text_obj = ax.text(textX, textY, text, va='top', ha='left')
+    def clear_info_card():
+        """Clear the currently displayed info card."""
+        if hasattr(render_location_info, "previous_text_obj") and render_location_info.previous_text_obj:
+            if render_location_info.previous_text_obj in ax.texts:
+                render_location_info.previous_text_obj.remove()
+            render_location_info.previous_text_obj = None
 
+        if hasattr(render_location_info, "previous_box") and render_location_info.previous_box:
+            if render_location_info.previous_box in ax.patches:
+                render_location_info.previous_box.remove()
+            render_location_info.previous_box = None
+
+        canvas.draw()
+
+    def render_location_info(text: str):
+        clear_info_card()
+
+        # Render the new text
+        text_obj = ax.text(textX, textY, text, va='top', ha='left')
         renderer = canvas.get_renderer()
         bbox = text_obj.get_window_extent(renderer=renderer)
         inv = ax.transData.inverted()
@@ -134,16 +151,31 @@ def display_map_with_menu(location_manager, route_history, graph):
                             facecolor='lightyellow', zorder=1)
         ax.add_patch(box)
 
-        # Redraw text on top
-        ax.draw_artist(text_obj)
+        # Save references to the current text and box
+        render_location_info.previous_text_obj = text_obj
+        render_location_info.previous_box = box
 
         # Render to canvas
         canvas.draw()
 
     def normal_click(event):
         nearest_location = select_nearest_location(event, location_manager.get_visible_Locations())
+    
+        if nearest_location is None:
+            # Clear the previously rendered note and bounding box
+            if hasattr(render_location_info, "previous_text_obj") and render_location_info.previous_text_obj:
+                if render_location_info.previous_text_obj in ax.texts:
+                    render_location_info.previous_text_obj.remove()
+                render_location_info.previous_text_obj = None
+            if hasattr(render_location_info, "previous_box") and render_location_info.previous_box:
+                if render_location_info.previous_box in ax.patches:
+                    render_location_info.previous_box.remove()
+                render_location_info.previous_box = None
+            canvas.draw()
+            return
+
         x, y = nearest_location['x'], nearest_location['y']
-        animate_marker(ax, canvas, x, y, 100)
+        animate_marker(ax, canvas, x, y, 50)
 
         text = nearest_location['name'] + '\n'
 
@@ -152,7 +184,6 @@ def display_map_with_menu(location_manager, route_history, graph):
 
             for feature in location_manager.location_features[nearest_location['name']]:
                 text += '\n-' + feature
-        
         else:
             text += '\nContains no notable\nfeatures or buildings.'
 
@@ -162,6 +193,7 @@ def display_map_with_menu(location_manager, route_history, graph):
 
     def find_shortest_route():
         """Allow the user to select start and end locations on the map to find the shortest route."""
+        clear_info_card()
         fig.canvas.mpl_disconnect(normal_click_handler)
 
         print("Click on the map to select the start and end locations.")
@@ -212,6 +244,7 @@ def display_map_with_menu(location_manager, route_history, graph):
 
     def view_route_history():
         """Display route history with forward and back navigation."""
+        clear_info_card()
         history = route_history.get_history()
 
         if not history:

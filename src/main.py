@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 # Local Imports
 from location_manager import LocationManager
-from route_history import RouteHistory
+from data_structures.stack import Stack
 from data_structures.graph import Graph
 from utils import (
     extract_coordinates_and_labels,
@@ -33,7 +33,7 @@ class CampusNavigationApp:
         self.current_marker = None
 
         self.location_manager = LocationManager()
-        self.route_history = RouteHistory()
+        self.route_history = Stack()
         self.graph = Graph()
 
         for id in self.location_manager.get_location_ids():
@@ -214,8 +214,8 @@ class CampusNavigationApp:
                         route_text = f"Shortest Route: {location_names} (Distance: {total_distance}m)"
                         print(route_text)
 
-                        # Add the route to the history
-                        self.route_history.add_route(route_text)
+                        # Add the route to the history directly using Stack
+                        self.route_history.push(route_text)
 
                         # Clear the previous route
                         for line in self.ax.lines:
@@ -256,7 +256,7 @@ class CampusNavigationApp:
         # Create a new popup
         self.current_popup = create_popup_window("Route History", 400, 300)
 
-        history = self.route_history.get_history()
+        history = self.route_history.list
 
         if not history:
             print("No route history available.")

@@ -5,7 +5,6 @@ import os
 import tkinter as tk
 from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.patches import FancyBboxPatch
 import matplotlib.pyplot as plt
 
 # Local Imports

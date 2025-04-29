@@ -1,4 +1,5 @@
 # An Undirected Graph data structure
+import heapq
 
 class Graph:
     def __init__(self):
@@ -47,25 +48,26 @@ class Graph:
         except:
             raise KeyError(f'Edge between {id_1} & {id_2} does not exist.')
 
-    def find_shortest_path(self, curr_id: int, end_id: int, _visited: set = set()) -> tuple[list[int], int]:
-        """Find the shortest path using Depth First Search"""
-        if curr_id == end_id:
-            return ([end_id], 0)
-        visited = _visited.copy()
-        visited.add(curr_id)
-        dis = 10**6
-        path = []
-        for node in self.paths[curr_id]:
-            if node in visited:
+    def find_shortest_path(self, start_id: int, end_id: int, _visited: set = set()) -> tuple[list[int], int]:
+        """Find the shortest path using Dijkstra like BFS"""
+        heap = [(0, start_id, [start_id])]
+        visited = set()
+
+        while heap:
+            curr_dis, current, path = heapq.heappop(heap)
+            if current == end_id:
+                return path, curr_dis
+            
+            if current in visited:
                 continue
-            newPath, newDis = self.find_shortest_path(node, end_id, visited)
-            if (newDis < dis):
-                path = newPath
-                dis = newDis
-        if any(path):
-            dis += self.get_edge_weight(curr_id, path[0])
-            path.insert(0, curr_id)
-        return path, dis
+            visited.add(current)
+
+            for neighbor in self.paths[current]:
+                if neighbor not in visited:
+                    edge_weight = self.get_edge_weight(current, neighbor)
+                    heapq.heappush(heap, (curr_dis + edge_weight, neighbor, path + [neighbor]))
+
+        return [], 10**6
 
     def __str__(self):
         s = ''

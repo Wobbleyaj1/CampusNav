@@ -243,9 +243,9 @@ def display_map_with_menu(location_manager, route_history, graph):
             print(route)
 
     menu_buttons = [
-        ("Add a new location", add_location),
-        ("Edit an existing location", edit_location),
-        ("Delete a location", delete_location),
+        # ("Add a new location", add_location),
+        # ("Edit an existing location", edit_location),
+        # ("Delete a location", delete_location),
         ("Search for a location", search_location),
         ("Find shortest route", find_shortest_route),
         ("View route history", view_route_history),

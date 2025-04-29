@@ -5,6 +5,7 @@ import os
 import tkinter as tk
 from tkinter import simpledialog, ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.patches import FancyBboxPatch
 import matplotlib.pyplot as plt
 
 # Local Imports
@@ -15,7 +16,7 @@ from graph_builder import graphBuilder
 from utils import extract_coordinates_and_labels, add_background_image, get_location_details, refresh_map, select_nearest_location
 from matplotlib.animation import FuncAnimation
 
-def animate_marker(ax, canvas, x, y):
+def animate_marker(ax, canvas, x, y, interval=500):
     """Animate a blinking marker at the given coordinates."""
     marker, = ax.plot([], [], 'ro', markersize=12)
 
@@ -29,7 +30,7 @@ def animate_marker(ax, canvas, x, y):
 
     # Create the animation
     ani = FuncAnimation(
-        ax.figure, update, frames=10, interval=500, blit=True, repeat=False
+        ax.figure, update, frames=10, interval=interval, blit=True, repeat=False
     )
 
     # Redraw the canvas to show the animation
@@ -68,7 +69,6 @@ def display_map_with_menu(location_manager, route_history, graph):
     ax.set_xlabel("X Coordinate")
     ax.set_ylabel("Y Coordinate")
     ax.set_title("Campus Map")
-    ax.grid(True)
     ax.set_aspect(aspect = 1006 / 978)
     ax.legend()
 
@@ -117,8 +117,46 @@ def display_map_with_menu(location_manager, route_history, graph):
         confirm_button = tk.Button(popup, text="Search", command=on_select)
         confirm_button.pack(pady=10)
 
+    textX, textY = 500, -200
+    text_obj = ax.text(textX, textY, text, va='center', ha='left')
+
+    def render_location_info(text: str):
+        text_obj = ax.text(textX, textY, text, va='center', ha='left')
+
+        renderer = canvas.get_renderer()
+        bbox = text_obj.get_window_extent(renderer=renderer)
+        inv = ax.transData.inverted()
+        bbox_data = bbox.transformed(inv)
+
+        # Draw a box around the text
+        width = bbox_data.width
+        height = bbox_data.height
+        box = FancyBboxPatch((textX - 10, (textY - height / 2) - 10), width + 20, height + 20,
+                            boxstyle="round,pad=3", edgecolor='black',
+                            facecolor='lightyellow', zorder=1)
+        ax.add_patch(box)
+
+        # Redraw text on top
+        ax.draw_artist(text_obj)
+
+        # Render to canvas
+        canvas.draw()
+
+    def normal_click(event):
+        nearest_location = select_nearest_location(event, location_manager.get_visible_Locations())
+        x, y = nearest_location['x'], nearest_location['y']
+        animate_marker(ax, canvas, x, y, 100)
+
+        text = nearest_location['name'] + '\n'
+
+        render_location_info(text, text_obj)
+        
+    normal_click_handler = fig.canvas.mpl_connect('button_press_event', normal_click)
+
     def find_shortest_route():
         """Allow the user to select start and end locations on the map to find the shortest route."""
+        fig.canvas.mpl_disconnect(normal_click_handler)
+
         print("Click on the map to select the start and end locations.")
 
         # Variables to store the selected locations
@@ -156,6 +194,7 @@ def display_map_with_menu(location_manager, route_history, graph):
                         canvas.draw()
                     else:
                         print("No route found between the locations.")
+                    fig.canvas.mpl_connect('button_press_event', normal_click)
 
         # Connect the event handler to the matplotlib figure
         cid = fig.canvas.mpl_connect('button_press_event', on_click)

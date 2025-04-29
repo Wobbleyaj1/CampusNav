@@ -148,7 +148,7 @@ def display_map_with_menu(location_manager, route_history, graph):
         selected_locations = []
 
         def on_click(event):
-            nearest_location = select_nearest_location(event, location_manager.locations)
+            nearest_location = select_nearest_location(event, location_manager.get_visible_Locations())
             if nearest_location:
                 selected_locations.append(nearest_location)
                 print(f"Selected location: {nearest_location['name']}")

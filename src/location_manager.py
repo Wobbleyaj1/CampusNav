@@ -1,10 +1,12 @@
 import json
 from data_structures.dictionary import twoWayDict
 class LocationManager:
-    def __init__(self, json_file="data/campus_map.json"):
+    def __init__(self, json_file="data/campus_map.json", features_file="data/location_features.json"):
         # List to store locations with their full structure
         self.locations = []
         self.json_file = json_file
+        self.location_features = {}
+        self.features_file = features_file
         self.load_locations()
 
     def load_locations(self):
@@ -20,6 +22,18 @@ class LocationManager:
         except json.JSONDecodeError:
             print(f"Error decoding JSON from {self.json_file}. Starting with an empty location list.")
             self.locations = []
+
+        try:
+            with open(self.features_file, "r") as file:
+                self.location_features = json.load(file)
+                print(self.location_features)
+            print("Locations loaded successfully.")
+        except FileNotFoundError:
+            print(f"File {self.features_file} not found. Starting with an empty feature dictionary.")
+            self.location_features = {}
+        except json.JSONDecodeError:
+            print(f"Error decoding JSON from {self.features_file}. Starting with an empty feature dictionary.")
+            self.location_features = {}
 
     def get_visible_Locations(self):
         return [loc for loc in self.locations if loc['pointOfInterest']]

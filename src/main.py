@@ -117,11 +117,10 @@ def display_map_with_menu(location_manager, route_history, graph):
         confirm_button = tk.Button(popup, text="Search", command=on_select)
         confirm_button.pack(pady=10)
 
-    textX, textY = 500, -200
-    text_obj = ax.text(textX, textY, text, va='center', ha='left')
+    textX, textY = 350, -70
 
     def render_location_info(text: str):
-        text_obj = ax.text(textX, textY, text, va='center', ha='left')
+        text_obj = ax.text(textX, textY, text, va='top', ha='left')
 
         renderer = canvas.get_renderer()
         bbox = text_obj.get_window_extent(renderer=renderer)
@@ -131,7 +130,7 @@ def display_map_with_menu(location_manager, route_history, graph):
         # Draw a box around the text
         width = bbox_data.width
         height = bbox_data.height
-        box = FancyBboxPatch((textX - 10, (textY - height / 2) - 10), width + 20, height + 20,
+        box = FancyBboxPatch((textX - 10, textY - height - 10), width + 20, height + 20,
                             boxstyle="round,pad=3", edgecolor='black',
                             facecolor='lightyellow', zorder=1)
         ax.add_patch(box)
@@ -149,7 +148,16 @@ def display_map_with_menu(location_manager, route_history, graph):
 
         text = nearest_location['name'] + '\n'
 
-        render_location_info(text, text_obj)
+        if nearest_location['name'] in location_manager.location_features:
+            text += '\nContains:'
+
+            for feature in location_manager.location_features[nearest_location['name']]:
+                text += '\n-' + feature
+        
+        else:
+            text += '\nContains no notable\nfeatures or buildings.'
+
+        render_location_info(text)
         
     normal_click_handler = fig.canvas.mpl_connect('button_press_event', normal_click)
 

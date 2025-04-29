@@ -12,7 +12,7 @@ from location_manager import LocationManager
 from route_history import RouteHistory
 from data_structures.graph import Graph
 from graph_builder import graphBuilder
-from utils import extract_coordinates_and_labels, add_background_image, get_location_details, refresh_map, select_nearest_location
+from utils import extract_coordinates_and_labels, add_background_image, select_nearest_location
 from matplotlib.animation import FuncAnimation
 
 def animate_marker(ax, canvas, x, y):

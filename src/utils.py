@@ -2,46 +2,6 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import tkinter as tk
 
-def get_location_details(root):
-    """Open a custom dialog to get location name and pointOfInterest."""
-    dialog = tk.Toplevel(root)
-    dialog.title("Add Location")
-
-    # Location name input
-    tk.Label(dialog, text="Location Name:").grid(row=0, column=0, padx=10, pady=5)
-    name_entry = tk.Entry(dialog)
-    name_entry.grid(row=0, column=1, padx=10, pady=5)
-
-    # Point of interest checkbox
-    point_of_interest_var = tk.BooleanVar()
-    tk.Checkbutton(dialog, text="Point of Interest", variable=point_of_interest_var).grid(row=1, columnspan=2, pady=5)
-
-    # Variable to store the result
-    result = {"name": None, "point_of_interest": None}
-
-    # Submit button
-    def submit():
-        # Retrieve values before destroying the dialog
-        result["name"] = name_entry.get()
-        result["point_of_interest"] = point_of_interest_var.get()
-        dialog.destroy()
-
-    tk.Button(dialog, text="Submit", command=submit).grid(row=2, columnspan=2, pady=10)
-
-    # Wait for the user to close the dialog
-    dialog.transient(root)
-    dialog.grab_set()
-    root.wait_window(dialog)
-
-    # Return the entered values
-    return result["name"], result["point_of_interest"]
-
-def refresh_map(ax, canvas, x, y, label, color="red"):
-    """Refresh the map by adding a new point and label."""
-    ax.scatter(x, y, color=color, label="New Location")
-    ax.annotate(label, (x, y), textcoords="offset points", xytext=(5, 5), ha="center")
-    canvas.draw()
-
 def extract_coordinates_and_labels(locations):
     """Extract x, y coordinates and labels from the locations list."""
     x_coords = []

@@ -3,7 +3,7 @@ import os
 
 # Third-Party Imports
 import tkinter as tk
-from tkinter import simpledialog, ttk
+from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.patches import FancyBboxPatch
 import matplotlib.pyplot as plt
@@ -12,8 +12,7 @@ import matplotlib.pyplot as plt
 from location_manager import LocationManager
 from route_history import RouteHistory
 from data_structures.graph import Graph
-from graph_builder import graphBuilder
-from utils import extract_coordinates_and_labels, add_background_image, get_location_details, refresh_map, select_nearest_location
+from utils import extract_coordinates_and_labels, add_background_image, select_nearest_location
 from matplotlib.animation import FuncAnimation
 
 def animate_marker(ax, canvas, x, y, interval=500):
@@ -184,7 +183,11 @@ def display_map_with_menu(location_manager, route_history, graph):
                     route, totalDistance = graph.find_shortest_path(start_location, end_location)
                     if route:
                         locationNames = [location_manager.get_location_name(id) for id in route]
-                        print(f"Shortest Route: {locationNames}{start_location} to {end_location}\nDistance: {totalDistance}")
+                        route_text = f"Shortest Route: {locationNames} (Distance: {totalDistance}m)"
+                        print(route_text)
+
+                        # Add the route to the history
+                        route_history.add_route(route_text)
                        
                         # Clear the previous route
                         for line in ax.lines:
@@ -208,10 +211,89 @@ def display_map_with_menu(location_manager, route_history, graph):
         cid = fig.canvas.mpl_connect('button_press_event', on_click)
 
     def view_route_history():
+        """Display route history with forward and back navigation."""
         history = route_history.get_history()
-        print("Route History:")
-        for route in history:
-            print(route)
+
+        if not history:
+            print("No route history available.")
+            return
+
+        # Create a popup window
+        popup = tk.Toplevel(root)
+        popup.title("Route History")
+        popup.geometry("400x300")
+
+        # Variables to track the current route index
+        current_index = tk.IntVar(value=len(history) - 1)
+
+        # Label to display the current route
+        route_label = tk.Label(popup, text="", wraplength=350, justify="left")
+        route_label.pack(pady=20)
+
+        def update_route_label_and_map():
+            """Update the label to show the current route."""
+            
+            # Get the current route from history
+            route_text = history[current_index.get()]
+
+            route_details = route_text.split(":")[1].strip()
+            location_names_part = route_details.split(" (")[0]
+            location_names = location_names_part.strip("[]").replace("'", "").split(", ")
+
+            distance_start = route_text.rfind("(Distance: ") + len("(Distance: ")
+            distance_end = route_text.rfind("m)")
+            distance = route_text[distance_start:distance_end].strip()
+
+            # Format the label to show only "from", "to", and "distance"
+            if len(location_names) >= 2:
+                from_location = location_names[0]
+                to_location = location_names[-1]
+                route_index = f"Route {current_index.get() + 1}/{len(history)}"
+                route_label.config(
+                    text=f"{route_index}\nFrom: {from_location}\nTo: {to_location}\nDistance: {distance}m",
+                    font=("Arial", 18)
+                )
+            else:
+                route_label.config(text="Invalid route data.")
+
+            # Convert location names to IDs
+            location_ids = [location_manager.get_location_id(name) for name in location_names]
+            
+            # Clear the previous route line from the map
+            for line in ax.lines:
+                if line.get_label() == "Shortest Route":
+                    line.remove()
+
+            # Get coordinates for the route and draw it on the map
+            route_coords = [
+                location_manager.get_location_coordinates(location_id) for location_id in location_ids
+            ]
+            x_coords, y_coords = zip(*route_coords)
+            ax.plot(x_coords, y_coords, color="red", linewidth=2, label="Shortest Route")
+            ax.legend()
+            canvas.draw()
+
+        def go_back():
+            """Go to the previous route."""
+            if current_index.get() > 0:
+                current_index.set(current_index.get() - 1)
+                update_route_label_and_map()
+
+        def go_forward():
+            """Go to the next route."""
+            if current_index.get() < len(history) - 1:
+                current_index.set(current_index.get() + 1)
+                update_route_label_and_map()
+
+        # Navigation buttons
+        back_button = tk.Button(popup, text="Back", command=go_back)
+        back_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+        forward_button = tk.Button(popup, text="Forward", command=go_forward)
+        forward_button.pack(side=tk.RIGHT, padx=10, pady=10)
+
+        # Initialize the label with the first route
+        update_route_label_and_map()
 
     menu_buttons = [
         ("Search for a location", search_location),
@@ -232,7 +314,10 @@ def main():
     route_history = RouteHistory()
     graph = Graph()
 
-    graphBuilder(graph, location_manager.get_location_ids())
+    for id in location_manager.get_location_ids():
+        graph.add_node(id)
+
+    graph.load_from_json("data/campus_map.json")
 
     display_map_with_menu(location_manager, route_history, graph)
 

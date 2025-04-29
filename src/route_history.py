@@ -1,18 +1,17 @@
+from data_structures.stack import Stack
+
 class RouteHistory:
     def __init__(self):
-        """Initialize an empty stack to store route history."""
-        self.history = []
+        """Initialize a stack to store route history."""
+        self.history = Stack()
 
     def add_route(self, route):
         """Add a route to the history stack."""
-        self.history.append(route)
-        print(f"Route added to history: {route}")
+        self.history.push(route)
 
     def get_history(self):
-        """Retrieve the route history."""
-        if not self.history:
-            print("No routes in history.")
-        return self.history
+        """Retrieve the route history as a list."""
+        return self.history.list
 
     def clear_history(self):
         """Clear the route history."""

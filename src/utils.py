@@ -192,8 +192,12 @@ def render_location_info(ax, canvas, text, textX, textY):
     # Render to canvas
     canvas.draw()
 
-def add_menu_buttons(menu_frame, buttons):
+def add_menu_buttons(menu_frame, buttons) -> list[tk.Button]:
     """Add buttons to the menu frame."""
+    button_objects = []
     for text, command in buttons:
         button = tk.Button(menu_frame, text=text, command=command)
         button.pack(side=tk.LEFT, padx=5, pady=5)
+        if text != 'Exit':
+            button_objects.append(button)
+    return button_objects

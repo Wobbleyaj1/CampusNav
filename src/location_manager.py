@@ -26,8 +26,7 @@ class LocationManager:
         try:
             with open(self.features_file, "r") as file:
                 self.location_features = json.load(file)
-                print(self.location_features)
-            print("Locations loaded successfully.")
+            print("Features loaded successfully.")
         except FileNotFoundError:
             print(f"File {self.features_file} not found. Starting with an empty feature dictionary.")
             self.location_features = {}
@@ -79,9 +78,21 @@ class LocationManager:
                 return location['name']
         raise KeyError(f'The id "{id}" does not exist.')
     
+    def get_location_name_from_cords(self, x: int, y: int) -> str:
+        for location in self.locations:
+            if location['x'] == x and location['y'] == y:
+                return location['name']
+        raise KeyError(f'A point at "{x},{y}" does not exist.')
+    
     def get_location_coordinates(self, id: int) -> tuple[int, int]:
         """Get the coordinates (x, y) of a location by its ID."""
         for location in self.locations:
             if location["id"] == id:
                 return location["x"], location["y"]
         raise KeyError(f'The id "{id}" does not exist.')
+    
+    def is_point_of_interest(self, name: str) -> bool:
+        for location in self.locations:
+            if location['name'] == name:
+                return location['pointOfInterest']
+        raise KeyError(f'The name "{name}" does not exit.')

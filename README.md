@@ -64,7 +64,7 @@ CampusNav/
 - Load campus locations and connections from `campus_map.json`
 - Display location details from `locations.json`
 - Implement shortest path finding using Dijkstra’s algorithm
-- Provide interaction for:
+- Provide GUI for:
   - Displaying campus location names
   - Finding a route between two locations
   - Viewing details for a given location

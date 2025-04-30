@@ -401,7 +401,7 @@ class CampusNavigationApp:
                         print(route_text)
 
                         # Add the route to the history
-                        self.route_history.add_route(route_text)
+                        self.route_history.push(route_text)
 
                         # Clear the previous route
                         for line in self.ax.lines:

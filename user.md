@@ -72,4 +72,5 @@ The `LocationManager` class manages the data related to campus locations, includ
 ### Data Structures
 - **Graph**: Used for shortest path calculations between locations.
 - **Tree**: Used for hierarchical categorization of locations.
-- **Stack/Queue**: Utilized for managing user interactions and route history.
+- **Stack**: Utilized for managing route history.
+- **Queue**: Utilized for managing the walking guide.

@@ -286,7 +286,7 @@ class CampusNavigationApp:
                         self.ax.legend()
                         self.canvas.draw()
 
-                        self.update_prompt_text()
+                        self.update_prompt_text(f'Total Distance: {total_distance}m')
                         self.enable_buttons()
 
                     # Reconnect the normal click handler

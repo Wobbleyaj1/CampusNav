@@ -79,9 +79,21 @@ class LocationManager:
                 return location['name']
         raise KeyError(f'The id "{id}" does not exist.')
     
+    def get_location_name_from_cords(self, x: int, y: int) -> str:
+        for location in self.locations:
+            if location['x'] == x and location['y'] == y:
+                return location['name']
+        raise KeyError(f'A point at "{x},{y}" does not exist.')
+    
     def get_location_coordinates(self, id: int) -> tuple[int, int]:
         """Get the coordinates (x, y) of a location by its ID."""
         for location in self.locations:
             if location["id"] == id:
                 return location["x"], location["y"]
         raise KeyError(f'The id "{id}" does not exist.')
+    
+    def is_point_of_interest(self, name: str) -> bool:
+        for location in self.locations:
+            if location['name'] == name:
+                return location['pointOfInterest']
+        raise KeyError(f'The name "{name}" does not exit.')

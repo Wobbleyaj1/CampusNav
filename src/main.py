@@ -150,7 +150,8 @@ class CampusNavigationApp:
         self.canvas.draw()
 
     def display_info_card(self, name: str, x: int = 350, y: int = -120):
-        # Display the info card
+        """Display the info card with constraints to keep it within the map bounds."""
+        # Display the info card text
         text = name + '\n'
 
         if name in self.location_manager.location_features:
@@ -160,8 +161,16 @@ class CampusNavigationApp:
         else:
             text += '\nContains no notable\nfeatures or buildings.'
 
-        # Offset the info card position slightly to avoid overlap with the dot
-        render_location_info(self.ax, self.canvas, text, x + 100, y)
+        # Get the map's visible bounds
+        x_min, x_max = self.ax.get_xlim()
+        y_min, y_max = self.ax.get_ylim()
+
+        # Constrain the info card position to stay within the map bounds
+        constrained_x = max(x_min + 50, min(x + 100, x_max - 200))  # Add padding to avoid edges
+        constrained_y = max(y_min + 50, min(y, y_max - 100))        # Add padding to avoid edges
+
+        # Render the info card at the constrained position
+        render_location_info(self.ax, self.canvas, text, constrained_x, constrained_y)
 
     def normal_click(self, event):
         self.update_prompt_text()

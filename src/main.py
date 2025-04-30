@@ -14,6 +14,8 @@ from data_structures.stack import Stack
 from data_structures.graph import Graph
 from data_structures.queue import Queue
 from data_structures.tree import Tree
+from data_structures.array import Array
+from data_structures.array import LinkedStructures
 from utils import (
     extract_coordinates_and_labels,
     add_background_image,
@@ -38,7 +40,9 @@ class CampusNavigationApp:
         self.location_manager = LocationManager()
         self.route_history = Stack()
         self.graph = Graph()
-        self.location_tree = Tree()        
+        self.location_tree = Tree()
+        self.frequent_locations = Array(size=10, default_value=None)
+        self.current_route = LinkedStructures()     
 
         for id in self.location_manager.get_location_ids():
             self.graph.add_node(id)
@@ -69,9 +73,10 @@ class CampusNavigationApp:
         menu_buttons = [
             ("Search for a location", self.search_location),
             ("Find shortest route", self.find_shortest_route),
-            ("View route history", self.view_route_history),
             ("Walking Guide", self.walking_guide),
+            ("View route history", self.view_route_history),
             ("View location tree", self.build_location_tree),
+            ("Frequent Locations", self.display_frequent_locations),
             ("Exit", self.exit_application),
         ]
         self.buttons = add_menu_buttons(self.menu_frame, menu_buttons)
@@ -145,7 +150,8 @@ class CampusNavigationApp:
         self.canvas.draw()
 
     def display_info_card(self, name: str, x: int = 350, y: int = -120):
-        # Display the info card
+        """Display the info card with constraints to keep it within the map bounds."""
+        # Display the info card text
         text = name + '\n'
 
         if name in self.location_manager.location_features:
@@ -155,8 +161,16 @@ class CampusNavigationApp:
         else:
             text += '\nContains no notable\nfeatures or buildings.'
 
-        # Offset the info card position slightly to avoid overlap with the dot
-        render_location_info(self.ax, self.canvas, text, x + 100, y)
+        # Get the map's visible bounds
+        x_min, x_max = self.ax.get_xlim()
+        y_min, y_max = self.ax.get_ylim()
+
+        # Constrain the info card position to stay within the map bounds
+        constrained_x = max(x_min + 50, min(x + 100, x_max - 200))  # Add padding to avoid edges
+        constrained_y = max(y_min + 50, min(y, y_max - 100))        # Add padding to avoid edges
+
+        # Render the info card at the constrained position
+        render_location_info(self.ax, self.canvas, text, constrained_x, constrained_y)
 
     def normal_click(self, event):
         self.update_prompt_text()
@@ -215,6 +229,14 @@ class CampusNavigationApp:
             if selected_name:
                 result = self.location_manager.search_location(selected_name)
                 if result:
+                    # Store the location in the frequent_locations array
+                    for i in range(self.frequent_locations.size):
+                        if self.frequent_locations.get(i) is None:
+                            self.frequent_locations.set(i, selected_name)
+                            break
+                        elif self.frequent_locations.get(i) == selected_name:
+                            # Avoid duplicates
+                            break
                     x, y = result['x'], result['y']
                     self.clear_info_card()
                     self.current_marker = self.ax.plot(x, y, 'ro', markersize=12)
@@ -238,13 +260,12 @@ class CampusNavigationApp:
         confirm_button.pack(pady=10)
 
     def find_shortest_route(self):
+        """Allow the user to select start and end locations on the map to find the shortest route."""
         self.disable_buttons()
         self.update_prompt_text('Select Starting Point')
 
-        """Allow the user to select start and end locations on the map to find the shortest route."""
         # Clear the current marker if it exists
         clear_current_marker(self.current_marker, self.ax)
-
         self.clear_info_card()
 
         # Disconnect the normal click handler
@@ -265,6 +286,13 @@ class CampusNavigationApp:
                     end_location = selected_locations[1]["id"]
                     route, total_distance = self.graph.find_shortest_path(start_location, end_location)
                     if route:
+                        # Clear the current route before adding the new one
+                        self.current_route = LinkedStructures()
+
+                        # Store the route in the LinkedStructures instance
+                        for location_id in route:
+                            self.current_route.add_node(location_id)
+
                         location_names = [self.location_manager.get_location_name(location_id) for location_id in route]
                         route_text = f"Shortest Route: {location_names} (Distance: {total_distance}m)"
 
@@ -294,6 +322,7 @@ class CampusNavigationApp:
 
                 elif len(selected_locations) == 1:
                     self.update_prompt_text('Select End Location')
+
         # Connect the event handler for selecting locations
         cid = self.fig.canvas.mpl_connect('button_press_event', on_click)
 
@@ -357,126 +386,49 @@ class CampusNavigationApp:
         update_route_label_and_map()
 
     def walking_guide(self):
-        self.update_prompt_text('Select Starting Location')
+        """Guide the user step-by-step through the current route."""
+        if not self.current_route.head:
+            self.update_prompt_text("No route available. Please find a route first.")
+            return
+
+        self.update_prompt_text("Starting walking guide...")
         self.disable_buttons()
 
-        # Clear the current marker if it exists
-        clear_current_marker(self.current_marker, self.ax)
+        # Initialize the current node for traversal
+        self.current_node = self.current_route.head
 
-        self.clear_info_card()
+        def move_to_next_location():
+            """Move to the next location in the route."""
+            if self.current_node is None:
+                self.update_prompt_text("Walking guide completed!")
+                self.enable_buttons()
+                next_button.destroy()  # Remove the button when the guide is complete
+                return
 
-        # Disconnect the normal click handler
-        self.fig.canvas.mpl_disconnect(self.normal_click_handler)
+            location_id = self.current_node.value
+            x, y = self.location_manager.get_location_coordinates(location_id)
 
-        # Variables to store the selected locations
-        selected_locations = []
+            # Highlight the current location on the map
+            self.ax.plot(x, y, 'wo', markersize=10, label="Current Location")
+            self.canvas.draw()
 
-        # Keeps track of if the user has set a path
-        self.route_set = False
-        self.walking_queue = Queue()
-        self.walking_x = None
-        self.walking_y = None
+            # Display information about the current location
+            name = self.location_manager.get_location_name(location_id)
+            if self.location_manager.is_point_of_interest(name):
+                self.display_info_card(name)
 
-        def on_click(event):
-            "Adds a walking guide that helps a used navigate to a location"
-            nearest_location = select_nearest_location(event, self.location_manager.get_visible_Locations())
+            # Update the prompt text
+            self.update_prompt_text(f"Currently at {name}. Click 'Next' to continue...")
 
-            if self.route_set:
-                if len(self.walking_queue) == 0:
-                    # Disconnect the shortest route click handler
-                    self.fig.canvas.mpl_disconnect(cid)
+            # Move to the next node
+            self.current_node = self.current_node.next
 
-                    # Clear the route
-                    self.clear_info_card()
+        # Create a "Next" button for navigation
+        next_button = tk.Button(self.root, text="Next", command=move_to_next_location)
+        next_button.pack(pady=10)
 
-                    for line in self.ax.lines:
-                        line.remove()
-
-                    clear_current_marker(self.current_marker, self.ax)
-                    self.ax.legend()
-                    self.canvas.draw()
-
-                    # Reconnect the normal click handler
-                    self.normal_click_handler = self.fig.canvas.mpl_connect('button_press_event', self.normal_click)
-
-                    self.update_prompt_text()
-                    self.enable_buttons()
-                    return
-                
-                clear_current_marker(self.current_marker, self.ax)
-                self.clear_info_card()
-
-                prev_x = self.walking_x
-                prev_y = self.walking_y
-                self.walking_x, self.walking_y = self.walking_queue.dequeue()
-
-                # Add a static red dot at the selected location
-                self.current_marker = self.ax.plot(self.walking_x, self.walking_y, 'co', markersize=6, label='Last Location')
-
-                # Add new finish path
-                self.ax.plot([prev_x, self.walking_x], [prev_y, self.walking_y], color="cyan", linewidth=2)
-                self.canvas.draw()
-
-                # Display Info for Points of Interest
-                name = self.location_manager.get_location_name_from_cords(self.walking_x, self.walking_y)
-                if self.location_manager.is_point_of_interest(name):
-                    self.display_info_card(name)
-
-            elif nearest_location:
-                selected_locations.append(nearest_location)
-
-                # If two locations are selected, find the shortest route
-                if len(selected_locations) == 2:
-                    start_location = selected_locations[0]["id"]
-                    end_location = selected_locations[1]["id"]
-                    route, total_distance = self.graph.find_shortest_path(start_location, end_location)
-                    if route:
-                        location_names = [self.location_manager.get_location_name(location_id) for location_id in route]
-                        route_text = f"Shortest Route: {location_names} (Distance: {total_distance}m)"
-
-                        # Add the route to the history
-                        self.route_history.push(route_text)
-
-                        # Clear the previous route
-                        for line in self.ax.lines:
-                            line.remove()
-
-                        # Extract coordinates for the route
-                        route_coords = [
-                            self.location_manager.get_location_coordinates(location_id) for location_id in route
-                        ]
-                        x_coords, y_coords = zip(*route_coords)
-
-                        self.walking_queue = Queue(route_coords)
-                        self.walking_x, self.walking_y = self.walking_queue.dequeue()
-
-                        # Draw the route on the map
-                        self.ax.plot(x_coords, y_coords, color="white", linewidth=2, label="Planed Route")
-                        self.ax.plot(self.walking_x, self.walking_y, color="cyan", linewidth=2, label="Past Route")
-                        self.current_marker = self.ax.plot(self.walking_x, self.walking_y, 'co', markersize=6, label='Current Location')
-                        self.ax.legend()
-                        self.canvas.draw()
-
-                        # Display Info for Points of Interest
-                        name = self.location_manager.get_location_name_from_cords(self.walking_x, self.walking_y)
-                        if self.location_manager.is_point_of_interest(name):
-                            self.display_info_card(name)
-                        
-                        self.route_set = True
-
-                        self.update_prompt_text('Click to Move to Next Location')
-
-                    else:
-                        self.update_prompt_text('Selected Locations are Not Connected')
-                        
-                        # Reconnect the normal click handler
-                        self.normal_click_handler = self.fig.canvas.mpl_connect('button_press_event', self.normal_click)
-
-                elif len(selected_locations) == 1:
-                    self.update_prompt_text('Select End Location')
-
-        # Connect the event handler for selecting locations
-        cid = self.fig.canvas.mpl_connect('button_press_event', on_click)
+        # Start the guide by moving to the first location
+        move_to_next_location()
 
     def _initialize_location_tree(self):
         """Initialize the tree structure for campus locations."""
@@ -522,6 +474,29 @@ class CampusNavigationApp:
         root = "Campus"
         tree_view.insert("", "end", root, text=root)
         add_tree_nodes(root, root)
+
+    def display_frequent_locations(self):
+        """Display the list of frequently accessed locations."""
+        # Check if a popup is already open
+        if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
+            self.current_popup.lift()  # Bring the existing popup to the front
+            return
+
+        # Create a new popup
+        self.current_popup = create_popup_window("Frequent Locations", 300, 200)
+
+        label = tk.Label(self.current_popup, text="Frequently Accessed Locations:")
+        label.pack(pady=10)
+
+        # Display the locations in the array
+        locations = [self.frequent_locations.get(i) for i in range(self.frequent_locations.size) if self.frequent_locations.get(i) is not None]
+        if locations:
+            for location in locations:
+                location_label = tk.Label(self.current_popup, text=location)
+                location_label.pack()
+        else:
+            no_locations_label = tk.Label(self.current_popup, text="No locations accessed yet.")
+            no_locations_label.pack()
 
     def exit_application(self):
         """Exit the application cleanly."""

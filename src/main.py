@@ -6,11 +6,13 @@ import tkinter as tk
 from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch
 
 # Local Imports
 from location_manager import LocationManager
 from data_structures.stack import Stack
 from data_structures.graph import Graph
+from data_structures.queue import Queue
 from data_structures.tree import Tree
 from data_structures.array import Array
 from data_structures.array import LinkedStructures
@@ -40,8 +42,7 @@ class CampusNavigationApp:
         self.graph = Graph()
         self.location_tree = Tree()
         self.frequent_locations = Array(size=10, default_value=None)
-        self.current_route = LinkedStructures()
-
+        self.current_route = LinkedStructures()     
 
         for id in self.location_manager.get_location_ids():
             self.graph.add_node(id)
@@ -72,14 +73,54 @@ class CampusNavigationApp:
         menu_buttons = [
             ("Search for a location", self.search_location),
             ("Find shortest route", self.find_shortest_route),
+            ("Walking Guide", self.walking_guide),
             ("View route history", self.view_route_history),
             ("View location tree", self.build_location_tree),
             ("Frequent Locations", self.display_frequent_locations),
             ("Exit", self.exit_application),
         ]
-        add_menu_buttons(self.menu_frame, menu_buttons)
+        self.buttons = add_menu_buttons(self.menu_frame, menu_buttons)
 
         self.root.protocol("WM_DELETE_WINDOW", self.exit_application)
+
+        self.prompt_text_obj = None
+        self.update_prompt_text()
+
+    def disable_buttons(self):
+        for button in self.buttons:
+            button.config(state='disabled')
+
+    def enable_buttons(self):
+        for button in self.buttons:
+            button.config(state='normal')
+
+    def update_prompt_text(self, text: str = 'Click a location for more info'):
+        x, y = -1260, -790
+        if self.prompt_text_obj is not None:
+            self.prompt_text_obj.remove()
+            self.prompt_text_box.remove()
+
+        self.prompt_text_obj = text_obj = self.ax.text(x, y, text, fontsize=12, va='bottom', ha='left', zorder=2)
+
+        # Get bounding box of the text in data coordinates
+        renderer = self.canvas.get_renderer()
+        bbox = text_obj.get_window_extent(renderer=renderer)
+        inv = self.ax.transData.inverted()
+        bbox_data = bbox.transformed(inv)
+
+        # Draw a box around the text
+        width = bbox_data.width
+        height = bbox_data.height
+        self.prompt_text_box = FancyBboxPatch((x-5, y-5), width+15, height+15,
+                            boxstyle="round,pad=0.3", edgecolor='black',
+                            facecolor='lightyellow', zorder=1)
+        self.ax.add_patch(self.prompt_text_box)
+
+        # Redraw text on top
+        self.ax.draw_artist(text_obj)
+
+        # Render to canvas
+        self.canvas.draw()
 
     def initialize_map(self):
         """Initialize the map with locations and background."""
@@ -88,8 +129,8 @@ class CampusNavigationApp:
         )
         add_background_image(self.ax, "./assets/mercer_map.png")
         self.ax.scatter(x_coords, y_coords, color="blue", label="Locations")
-        self.ax.set_xlabel("X Coordinate")
-        self.ax.set_ylabel("Y Coordinate")
+        self.ax.set_xticks([])
+        self.ax.set_yticks([])
         self.ax.set_title("Campus Map")
         self.ax.set_aspect(aspect=1006 / 978)
         self.ax.legend()
@@ -108,7 +149,23 @@ class CampusNavigationApp:
 
         self.canvas.draw()
 
+    def display_info_card(self, name: str, x: int = 350, y: int = -120):
+        # Display the info card
+        text = name + '\n'
+
+        if name in self.location_manager.location_features:
+            text += '\nContains:'
+            for feature in self.location_manager.location_features[name]:
+                text += '\n- ' + feature
+        else:
+            text += '\nContains no notable\nfeatures or buildings.'
+
+        # Offset the info card position slightly to avoid overlap with the dot
+        render_location_info(self.ax, self.canvas, text, x + 100, y)
+
     def normal_click(self, event):
+        self.update_prompt_text()
+
         """Handle normal click events on the map."""
         clear_current_marker(self.current_marker, self.ax)
 
@@ -125,17 +182,7 @@ class CampusNavigationApp:
         self.current_marker = self.ax.plot(x, y, 'ro', markersize=12)
 
         # Display the info card
-        text = nearest_location['name'] + '\n'
-
-        if nearest_location['name'] in self.location_manager.location_features:
-            text += '\nContains:'
-            for feature in self.location_manager.location_features[nearest_location['name']]:
-                text += '\n- ' + feature
-        else:
-            text += '\nContains no notable\nfeatures or buildings.'
-
-        # Offset the info card position slightly to avoid overlap with the dot
-        render_location_info(self.ax, self.canvas, text, x + 100, y)
+        self.display_info_card(nearest_location['name'], x, y)
 
     def search_location(self):
         """Allow the user to search for a location using a combo box and display its information."""
@@ -212,18 +259,6 @@ class CampusNavigationApp:
         clear_current_marker(self.current_marker, self.ax)
         self.clear_info_card()
 
-        # Check if a popup is already open
-        if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
-            self.current_popup.lift()  # Bring the existing popup to the front
-            return
-
-        # Create a popup dialog to inform the user
-        self.current_popup = tk.Toplevel(self.root)
-        self.current_popup.title("Select Locations")
-        self.current_popup.geometry("300x100")
-        label = tk.Label(self.current_popup, text="Click on the map to select the start and end locations.")
-        label.pack(pady=10)
-
         # Disconnect the normal click handler
         self.fig.canvas.mpl_disconnect(self.normal_click_handler)
 
@@ -270,9 +305,8 @@ class CampusNavigationApp:
                         self.ax.legend()
                         self.canvas.draw()
 
-                    # Destroy the popup after the route is calculated
-                    if self.current_popup is not None:
-                        self.current_popup.destroy()
+                        self.update_prompt_text(f'Total Distance: {total_distance}m')
+                        self.enable_buttons()
 
                     # Reconnect the normal click handler
                     self.normal_click_handler = self.fig.canvas.mpl_connect('button_press_event', self.normal_click)
@@ -303,6 +337,7 @@ class CampusNavigationApp:
 
         if not history:
             self.current_popup.destroy()
+            self.update_prompt_text('No Route History Available')
             return
 
         current_index = tk.IntVar(value=len(history) - 1)

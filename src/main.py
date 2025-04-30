@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from location_manager import LocationManager
 from route_history import RouteHistory
 from data_structures.graph import Graph
+from data_structures.queue import Queue
 from utils import (
     extract_coordinates_and_labels,
     add_background_image,
@@ -64,6 +65,7 @@ class CampusNavigationApp:
             ("Search for a location", self.search_location),
             ("Find shortest route", self.find_shortest_route),
             ("View route history", self.view_route_history),
+            ("Walking Guide", self.walking_guide),
             ("Exit", self.exit_application),
         ]
         add_menu_buttons(self.menu_frame, menu_buttons)
@@ -97,6 +99,20 @@ class CampusNavigationApp:
 
         self.canvas.draw()
 
+    def display_info_card(self, name: str, x: int = 350, y: int = -120):
+        # Display the info card
+        text = name + '\n'
+
+        if name in self.location_manager.location_features:
+            text += '\nContains:'
+            for feature in self.location_manager.location_features[name]:
+                text += '\n- ' + feature
+        else:
+            text += '\nContains no notable\nfeatures or buildings.'
+
+        # Offset the info card position slightly to avoid overlap with the dot
+        render_location_info(self.ax, self.canvas, text, x + 100, y)
+
     def normal_click(self, event):
         """Handle normal click events on the map."""
         clear_current_marker(self.current_marker, self.ax)
@@ -114,17 +130,7 @@ class CampusNavigationApp:
         self.current_marker = self.ax.plot(x, y, 'ro', markersize=12)
 
         # Display the info card
-        text = nearest_location['name'] + '\n'
-
-        if nearest_location['name'] in self.location_manager.location_features:
-            text += '\nContains:'
-            for feature in self.location_manager.location_features[nearest_location['name']]:
-                text += '\n- ' + feature
-        else:
-            text += '\nContains no notable\nfeatures or buildings.'
-
-        # Offset the info card position slightly to avoid overlap with the dot
-        render_location_info(self.ax, self.canvas, text, x + 100, y)
+        self.display_info_card(nearest_location['name'], x, y)
 
     def search_location(self):
         """Allow the user to search for a location using a combo box and display its information."""
@@ -291,6 +297,122 @@ class CampusNavigationApp:
 
         # Initialize the label with the first route
         update_route_label_and_map()
+
+    def walking_guide(self):
+        # Clear the current marker if it exists
+        clear_current_marker(self.current_marker, self.ax)
+
+        self.clear_info_card()
+
+        print("Click on the map to select the start and end locations.")
+
+        # Disconnect the normal click handler
+        self.fig.canvas.mpl_disconnect(self.normal_click_handler)
+
+        # Variables to store the selected locations
+        selected_locations = []
+
+        # Keeps track of if the user has set a path
+        self.route_set = False
+        self.walking_queue = Queue()
+        self.walking_x = None
+        self.walking_y = None
+
+        def on_click(event):
+            "Adds a walking guide that helps a used navigate to a location"
+            nearest_location = select_nearest_location(event, self.location_manager.get_visible_Locations())
+
+            if self.route_set:
+                if len(self.walking_queue) == 0:
+                    # Disconnect the shortest route click handler
+                    self.fig.canvas.mpl_disconnect(cid)
+
+                    # Clear the route
+                    self.clear_info_card()
+
+                    for line in self.ax.lines:
+                        line.remove()
+
+                    clear_current_marker(self.current_marker, self.ax)
+                    self.ax.legend()
+                    self.canvas.draw()
+
+                    # Reconnect the normal click handler
+                    self.normal_click_handler = self.fig.canvas.mpl_connect('button_press_event', self.normal_click)
+
+                    return
+                
+                clear_current_marker(self.current_marker, self.ax)
+                self.clear_info_card()
+
+                prev_x = self.walking_x
+                prev_y = self.walking_y
+                self.walking_x, self.walking_y = self.walking_queue.dequeue()
+
+                # Add a static red dot at the selected location
+                self.current_marker = self.ax.plot(self.walking_x, self.walking_y, 'co', markersize=6, label='Last Location')
+
+                # Add new finish path
+                self.ax.plot([prev_x, self.walking_x], [prev_y, self.walking_y], color="cyan", linewidth=2)
+                self.canvas.draw()
+
+                # Display Info for Points of Interest
+                name = self.location_manager.get_location_name_from_cords(self.walking_x, self.walking_y)
+                if self.location_manager.is_point_of_interest(name):
+                    self.display_info_card(name)
+
+                print(f'Moved to: {name} ({self.walking_x}, {self.walking_y})')
+
+            elif nearest_location:
+                selected_locations.append(nearest_location)
+                print(f"Selected location: {nearest_location['name']}")
+
+                # If two locations are selected, find the shortest route
+                if len(selected_locations) == 2:
+                    start_location = selected_locations[0]["id"]
+                    end_location = selected_locations[1]["id"]
+                    route, total_distance = self.graph.find_shortest_path(start_location, end_location)
+                    if route:
+                        location_names = [self.location_manager.get_location_name(location_id) for location_id in route]
+                        route_text = f"Shortest Route: {location_names} (Distance: {total_distance}m)"
+                        print(route_text)
+
+                        # Add the route to the history
+                        self.route_history.add_route(route_text)
+
+                        # Clear the previous route
+                        for line in self.ax.lines:
+                            line.remove()
+
+                        # Extract coordinates for the route
+                        route_coords = [
+                            self.location_manager.get_location_coordinates(location_id) for location_id in route
+                        ]
+                        x_coords, y_coords = zip(*route_coords)
+
+                        self.walking_queue = Queue(route_coords)
+                        self.walking_x, self.walking_y = self.walking_queue.dequeue()
+
+                        # Draw the route on the map
+                        self.ax.plot(x_coords, y_coords, color="white", linewidth=2, label="Planed Route")
+                        self.ax.plot(self.walking_x, self.walking_y, color="cyan", linewidth=2, label="Past Route")
+                        self.current_marker = self.ax.plot(self.walking_x, self.walking_y, 'co', markersize=6, label='Current Location')
+                        self.ax.legend()
+                        self.canvas.draw()
+
+                        # Display Info for Points of Interest
+                        name = self.location_manager.get_location_name_from_cords(self.walking_x, self.walking_y)
+                        if self.location_manager.is_point_of_interest(name):
+                            self.display_info_card(name)
+                        
+                        self.route_set = True
+                    else:
+                        print("No route found between the selected locations.")
+                        # Reconnect the normal click handler
+                        self.normal_click_handler = self.fig.canvas.mpl_connect('button_press_event', self.normal_click)
+
+        # Connect the event handler for selecting locations
+        cid = self.fig.canvas.mpl_connect('button_press_event', on_click)
 
     def exit_application(self):
         """Exit the application cleanly."""

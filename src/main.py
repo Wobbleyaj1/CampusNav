@@ -12,6 +12,8 @@ from location_manager import LocationManager
 from data_structures.stack import Stack
 from data_structures.graph import Graph
 from data_structures.tree import Tree
+from data_structures.array import Array
+from data_structures.array import LinkedStructures
 from utils import (
     extract_coordinates_and_labels,
     add_background_image,
@@ -36,7 +38,10 @@ class CampusNavigationApp:
         self.location_manager = LocationManager()
         self.route_history = Stack()
         self.graph = Graph()
-        self.location_tree = Tree()        
+        self.location_tree = Tree()
+        self.frequent_locations = Array(size=10, default_value=None)
+        self.current_route = LinkedStructures()
+
 
         for id in self.location_manager.get_location_ids():
             self.graph.add_node(id)
@@ -69,6 +74,7 @@ class CampusNavigationApp:
             ("Find shortest route", self.find_shortest_route),
             ("View route history", self.view_route_history),
             ("View location tree", self.build_location_tree),
+            ("Frequent Locations", self.display_frequent_locations),
             ("Exit", self.exit_application),
         ]
         add_menu_buttons(self.menu_frame, menu_buttons)
@@ -167,6 +173,14 @@ class CampusNavigationApp:
             if selected_name:
                 result = self.location_manager.search_location(selected_name)
                 if result:
+                    # Store the location in the frequent_locations array
+                    for i in range(self.frequent_locations.size):
+                        if self.frequent_locations.get(i) is None:
+                            self.frequent_locations.set(i, selected_name)
+                            break
+                        elif self.frequent_locations.get(i) == selected_name:
+                            # Avoid duplicates
+                            break
                     x, y = result['x'], result['y']
                     self.clear_info_card()
                     self.current_marker = self.ax.plot(x, y, 'ro', markersize=12)
@@ -191,9 +205,11 @@ class CampusNavigationApp:
 
     def find_shortest_route(self):
         """Allow the user to select start and end locations on the map to find the shortest route."""
+        self.disable_buttons()
+        self.update_prompt_text('Select Starting Point')
+
         # Clear the current marker if it exists
         clear_current_marker(self.current_marker, self.ax)
-
         self.clear_info_card()
 
         # Check if a popup is already open
@@ -226,6 +242,13 @@ class CampusNavigationApp:
                     end_location = selected_locations[1]["id"]
                     route, total_distance = self.graph.find_shortest_path(start_location, end_location)
                     if route:
+                        # Clear the current route before adding the new one
+                        self.current_route = LinkedStructures()
+
+                        # Store the route in the LinkedStructures instance
+                        for location_id in route:
+                            self.current_route.add_node(location_id)
+
                         location_names = [self.location_manager.get_location_name(location_id) for location_id in route]
                         route_text = f"Shortest Route: {location_names} (Distance: {total_distance}m)"
 
@@ -253,6 +276,9 @@ class CampusNavigationApp:
 
                     # Reconnect the normal click handler
                     self.normal_click_handler = self.fig.canvas.mpl_connect('button_press_event', self.normal_click)
+
+                elif len(selected_locations) == 1:
+                    self.update_prompt_text('Select End Location')
 
         # Connect the event handler for selecting locations
         cid = self.fig.canvas.mpl_connect('button_press_event', on_click)
@@ -315,6 +341,51 @@ class CampusNavigationApp:
 
         update_route_label_and_map()
 
+    def walking_guide(self):
+        """Guide the user step-by-step through the current route."""
+        if not self.current_route.head:
+            self.update_prompt_text("No route available. Please find a route first.")
+            return
+
+        self.update_prompt_text("Starting walking guide...")
+        self.disable_buttons()
+
+        # Initialize the current node for traversal
+        self.current_node = self.current_route.head
+
+        def move_to_next_location():
+            """Move to the next location in the route."""
+            if self.current_node is None:
+                self.update_prompt_text("Walking guide completed!")
+                self.enable_buttons()
+                next_button.destroy()  # Remove the button when the guide is complete
+                return
+
+            location_id = self.current_node.value
+            x, y = self.location_manager.get_location_coordinates(location_id)
+
+            # Highlight the current location on the map
+            self.ax.plot(x, y, 'wo', markersize=10, label="Current Location")
+            self.canvas.draw()
+
+            # Display information about the current location
+            name = self.location_manager.get_location_name(location_id)
+            if self.location_manager.is_point_of_interest(name):
+                self.display_info_card(name)
+
+            # Update the prompt text
+            self.update_prompt_text(f"Currently at {name}. Click 'Next' to continue...")
+
+            # Move to the next node
+            self.current_node = self.current_node.next
+
+        # Create a "Next" button for navigation
+        next_button = tk.Button(self.root, text="Next", command=move_to_next_location)
+        next_button.pack(pady=10)
+
+        # Start the guide by moving to the first location
+        move_to_next_location()
+
     def _initialize_location_tree(self):
         """Initialize the tree structure for campus locations."""
         root = "Campus"
@@ -359,6 +430,29 @@ class CampusNavigationApp:
         root = "Campus"
         tree_view.insert("", "end", root, text=root)
         add_tree_nodes(root, root)
+
+    def display_frequent_locations(self):
+        """Display the list of frequently accessed locations."""
+        # Check if a popup is already open
+        if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
+            self.current_popup.lift()  # Bring the existing popup to the front
+            return
+
+        # Create a new popup
+        self.current_popup = create_popup_window("Frequent Locations", 300, 200)
+
+        label = tk.Label(self.current_popup, text="Frequently Accessed Locations:")
+        label.pack(pady=10)
+
+        # Display the locations in the array
+        locations = [self.frequent_locations.get(i) for i in range(self.frequent_locations.size) if self.frequent_locations.get(i) is not None]
+        if locations:
+            for location in locations:
+                location_label = tk.Label(self.current_popup, text=location)
+                location_label.pack()
+        else:
+            no_locations_label = tk.Label(self.current_popup, text="No locations accessed yet.")
+            no_locations_label.pack()
 
     def exit_application(self):
         """Exit the application cleanly."""

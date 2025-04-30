@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch
 
 # Local Imports
 from location_manager import LocationManager
@@ -77,6 +78,37 @@ class CampusNavigationApp:
 
         self.root.protocol("WM_DELETE_WINDOW", self.exit_application)
 
+        self.prompt_text_obj = None
+        self.update_prompt_text()
+
+    def update_prompt_text(self, text: str = 'Click a location for more info'):
+        x, y = -1260, -790
+        if self.prompt_text_obj is not None:
+            self.prompt_text_obj.remove()
+            self.prompt_text_box.remove()
+
+        self.prompt_text_obj = text_obj = self.ax.text(x, y, text, fontsize=12, va='bottom', ha='left', zorder=2)
+
+        # Get bounding box of the text in data coordinates
+        renderer = self.canvas.get_renderer()
+        bbox = text_obj.get_window_extent(renderer=renderer)
+        inv = self.ax.transData.inverted()
+        bbox_data = bbox.transformed(inv)
+
+        # Draw a box around the text
+        width = bbox_data.width
+        height = bbox_data.height
+        self.prompt_text_box = FancyBboxPatch((x-5, y-5), width+10, height+10,
+                            boxstyle="round,pad=0.3", edgecolor='black',
+                            facecolor='lightyellow', zorder=1)
+        self.ax.add_patch(self.prompt_text_box)
+
+        # Redraw text on top
+        self.ax.draw_artist(text_obj)
+
+        # Render to canvas
+        self.canvas.draw()
+
     def initialize_map(self):
         """Initialize the map with locations and background."""
         x_coords, y_coords, labels = extract_coordinates_and_labels(
@@ -119,6 +151,8 @@ class CampusNavigationApp:
         render_location_info(self.ax, self.canvas, text, x + 100, y)
 
     def normal_click(self, event):
+        self.update_prompt_text()
+
         """Handle normal click events on the map."""
         clear_current_marker(self.current_marker, self.ax)
 
@@ -196,23 +230,13 @@ class CampusNavigationApp:
         confirm_button.pack(pady=10)
 
     def find_shortest_route(self):
+        self.update_prompt_text('Select Starting Point')
+
         """Allow the user to select start and end locations on the map to find the shortest route."""
         # Clear the current marker if it exists
         clear_current_marker(self.current_marker, self.ax)
 
         self.clear_info_card()
-
-        # Check if a popup is already open
-        if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
-            self.current_popup.lift()  # Bring the existing popup to the front
-            return
-
-        # Create a popup dialog to inform the user
-        self.current_popup = tk.Toplevel(self.root)
-        self.current_popup.title("Select Locations")
-        self.current_popup.geometry("300x100")
-        label = tk.Label(self.current_popup, text="Click on the map to select the start and end locations.")
-        label.pack(pady=10)
 
         # Disconnect the normal click handler
         self.fig.canvas.mpl_disconnect(self.normal_click_handler)
@@ -253,13 +277,13 @@ class CampusNavigationApp:
                         self.ax.legend()
                         self.canvas.draw()
 
-                    # Destroy the popup after the route is calculated
-                    if self.current_popup is not None:
-                        self.current_popup.destroy()
+                        self.update_prompt_text()
 
                     # Reconnect the normal click handler
                     self.normal_click_handler = self.fig.canvas.mpl_connect('button_press_event', self.normal_click)
 
+                elif len(selected_locations) == 1:
+                    self.update_prompt_text('Select End Location')
         # Connect the event handler for selecting locations
         cid = self.fig.canvas.mpl_connect('button_press_event', on_click)
 
@@ -283,6 +307,7 @@ class CampusNavigationApp:
 
         if not history:
             self.current_popup.destroy()
+            self.update_prompt_text('No Route History Available')
             return
 
         current_index = tk.IntVar(value=len(history) - 1)
@@ -322,6 +347,8 @@ class CampusNavigationApp:
         update_route_label_and_map()
 
     def walking_guide(self):
+        self.update_prompt_text('Select Starting Location')
+
         # Clear the current marker if it exists
         clear_current_marker(self.current_marker, self.ax)
 
@@ -362,6 +389,8 @@ class CampusNavigationApp:
 
                     # Reconnect the normal click handler
                     self.normal_click_handler = self.fig.canvas.mpl_connect('button_press_event', self.normal_click)
+
+                    self.update_prompt_text()
 
                     return
                 
@@ -429,10 +458,17 @@ class CampusNavigationApp:
                             self.display_info_card(name)
                         
                         self.route_set = True
+
+                        self.update_prompt_text('Click to Move to Next Location')
+
                     else:
+                        self.update_prompt_text('Selected Locations are Not Connected')
                         print("No route found between the selected locations.")
                         # Reconnect the normal click handler
                         self.normal_click_handler = self.fig.canvas.mpl_connect('button_press_event', self.normal_click)
+
+                elif len(selected_locations) == 1:
+                    self.update_prompt_text('Select End Location')
 
         # Connect the event handler for selecting locations
         cid = self.fig.canvas.mpl_connect('button_press_event', on_click)

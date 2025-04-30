@@ -26,8 +26,7 @@ class LocationManager:
         try:
             with open(self.features_file, "r") as file:
                 self.location_features = json.load(file)
-                print(self.location_features)
-            print("Locations loaded successfully.")
+            print("Features loaded successfully.")
         except FileNotFoundError:
             print(f"File {self.features_file} not found. Starting with an empty feature dictionary.")
             self.location_features = {}

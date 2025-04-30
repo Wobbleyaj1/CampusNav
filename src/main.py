@@ -365,8 +365,6 @@ class CampusNavigationApp:
 
         self.clear_info_card()
 
-        print("Click on the map to select the start and end locations.")
-
         # Disconnect the normal click handler
         self.fig.canvas.mpl_disconnect(self.normal_click_handler)
 
@@ -424,11 +422,8 @@ class CampusNavigationApp:
                 if self.location_manager.is_point_of_interest(name):
                     self.display_info_card(name)
 
-                print(f'Moved to: {name} ({self.walking_x}, {self.walking_y})')
-
             elif nearest_location:
                 selected_locations.append(nearest_location)
-                print(f"Selected location: {nearest_location['name']}")
 
                 # If two locations are selected, find the shortest route
                 if len(selected_locations) == 2:
@@ -438,7 +433,6 @@ class CampusNavigationApp:
                     if route:
                         location_names = [self.location_manager.get_location_name(location_id) for location_id in route]
                         route_text = f"Shortest Route: {location_names} (Distance: {total_distance}m)"
-                        print(route_text)
 
                         # Add the route to the history
                         self.route_history.push(route_text)
@@ -474,7 +468,7 @@ class CampusNavigationApp:
 
                     else:
                         self.update_prompt_text('Selected Locations are Not Connected')
-                        print("No route found between the selected locations.")
+                        
                         # Reconnect the normal click handler
                         self.normal_click_handler = self.fig.canvas.mpl_connect('button_press_event', self.normal_click)
 

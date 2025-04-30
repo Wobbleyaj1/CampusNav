@@ -13,7 +13,9 @@ This system models the campus layout as a graph where:
 Users can:
 - Look up details about campus locations
 - Find the shortest route between two places
-- View information like distance and estimated travel time
+- View information like distance
+- Look at past routes
+- Follow along will walking campus
 
 ---
 
@@ -42,9 +44,8 @@ CampusNav/
 ## 📌 Features
 
 - 📌 Store and manage campus locations and connections using a graph
-- 🔍 Find shortest routes between any two locations on campus
+- 🔍 Find the shortest routes between two locations on campus
 - 🗺️ View details about campus buildings, landmarks, and services
-- 🏃 Estimate travel times based on distance
 - 📦 Uses:
   - Graphs (Unit 12)
   - Sets & Dictionaries (Unit 11)
@@ -63,8 +64,8 @@ CampusNav/
 - Load campus locations and connections from `campus_map.json`
 - Display location details from `locations.json`
 - Implement shortest path finding using Dijkstra’s algorithm
-- Provide command-line interaction for:
-  - Listing all campus locations
+- Provide interaction for:
+  - Displaying campus location names
   - Finding a route between two locations
   - Viewing details for a given location
 

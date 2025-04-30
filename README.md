@@ -15,7 +15,7 @@ Users can:
 - Find the shortest route between two places
 - View information like distance
 - Look at past routes
-- Follow along will walking campus
+- Follow along while walking campus
 
 ---
 

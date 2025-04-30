@@ -74,12 +74,20 @@ class CampusNavigationApp:
             ("View location tree", self.build_location_tree),
             ("Exit", self.exit_application),
         ]
-        add_menu_buttons(self.menu_frame, menu_buttons)
+        self.buttons = add_menu_buttons(self.menu_frame, menu_buttons)
 
         self.root.protocol("WM_DELETE_WINDOW", self.exit_application)
 
         self.prompt_text_obj = None
         self.update_prompt_text()
+
+    def disable_buttons(self):
+        for button in self.buttons:
+            button.config(state='disabled')
+
+    def enable_buttons(self):
+        for button in self.buttons:
+            button.config(state='normal')
 
     def update_prompt_text(self, text: str = 'Click a location for more info'):
         x, y = -1260, -790
@@ -98,7 +106,7 @@ class CampusNavigationApp:
         # Draw a box around the text
         width = bbox_data.width
         height = bbox_data.height
-        self.prompt_text_box = FancyBboxPatch((x-5, y-5), width+10, height+10,
+        self.prompt_text_box = FancyBboxPatch((x-5, y-5), width+15, height+15,
                             boxstyle="round,pad=0.3", edgecolor='black',
                             facecolor='lightyellow', zorder=1)
         self.ax.add_patch(self.prompt_text_box)
@@ -230,6 +238,7 @@ class CampusNavigationApp:
         confirm_button.pack(pady=10)
 
     def find_shortest_route(self):
+        self.disable_buttons()
         self.update_prompt_text('Select Starting Point')
 
         """Allow the user to select start and end locations on the map to find the shortest route."""
@@ -278,6 +287,7 @@ class CampusNavigationApp:
                         self.canvas.draw()
 
                         self.update_prompt_text()
+                        self.enable_buttons()
 
                     # Reconnect the normal click handler
                     self.normal_click_handler = self.fig.canvas.mpl_connect('button_press_event', self.normal_click)
@@ -348,6 +358,7 @@ class CampusNavigationApp:
 
     def walking_guide(self):
         self.update_prompt_text('Select Starting Location')
+        self.disable_buttons()
 
         # Clear the current marker if it exists
         clear_current_marker(self.current_marker, self.ax)
@@ -391,7 +402,7 @@ class CampusNavigationApp:
                     self.normal_click_handler = self.fig.canvas.mpl_connect('button_press_event', self.normal_click)
 
                     self.update_prompt_text()
-
+                    self.enable_buttons()
                     return
                 
                 clear_current_marker(self.current_marker, self.ax)

@@ -1,7 +1,5 @@
 # Searching and sorting algorithms
 
-# Searching and sorting algorithms
-
 class SearchingSorting:
     def __init__(self):
         """Initialize the searching and sorting module."""

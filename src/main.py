@@ -394,18 +394,24 @@ class CampusNavigationApp:
         self.update_prompt_text("Starting walking guide...")
         self.disable_buttons()
 
+        # Initialize a queue to store the locations in the route
+        location_queue = Queue()
+
         # Initialize the current node for traversal
-        self.current_node = self.current_route.head
+        current_node = self.current_route.head
+        while current_node:
+            location_queue.enqueue(current_node.value)
+            current_node = current_node.next
 
         def move_to_next_location():
             """Move to the next location in the route."""
-            if self.current_node is None:
+            if location_queue.isEmpty():
                 self.update_prompt_text("Walking guide completed!")
                 self.enable_buttons()
                 next_button.destroy()  # Remove the button when the guide is complete
                 return
 
-            location_id = self.current_node.value
+            location_id = location_queue.dequeue()
             x, y = self.location_manager.get_location_coordinates(location_id)
 
             # Highlight the current location on the map
@@ -419,9 +425,6 @@ class CampusNavigationApp:
 
             # Update the prompt text
             self.update_prompt_text(f"Currently at {name}. Click 'Next' to continue...")
-
-            # Move to the next node
-            self.current_node = self.current_node.next
 
         # Create a "Next" button for navigation
         next_button = tk.Button(self.root, text="Next", command=move_to_next_location)

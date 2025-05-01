@@ -49,7 +49,7 @@ class Graph:
         except:
             raise KeyError(f'Edge between {id_1} & {id_2} does not exist.')
 
-    def find_shortest_path(self, start_id: int, end_id: int, _visited: set = set()) -> tuple[list[int], int]:
+    def find_shortest_path(self, start_id: int, end_id: int) -> tuple[list[int], int]:
         """Find the shortest path using Dijkstra like BFS"""
         heap = [(0, start_id, [start_id])]
         visited = set()

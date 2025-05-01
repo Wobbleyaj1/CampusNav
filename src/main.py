@@ -14,8 +14,10 @@ from data_structures.stack import Stack
 from data_structures.graph import Graph
 from data_structures.queue import Queue
 from data_structures.tree import Tree
-from data_structures.array import Array
-from data_structures.array import LinkedStructures
+from data_structures.array import Array, LinkedStructures
+from data_structures.set import Set
+from data_structures.list import List
+from data_structures.searching_sorting import Searching, Sorting
 from utils import (
     extract_coordinates_and_labels,
     add_background_image,
@@ -42,7 +44,10 @@ class CampusNavigationApp:
         self.graph = Graph()
         self.location_tree = Tree()
         self.frequent_locations = Array(size=10, default_value=None)
-        self.current_route = LinkedStructures()     
+        self.current_route = LinkedStructures()
+        self.recent_locations = List()
+        self.searching = Searching()
+        self.sorting = Sorting()
 
         for id in self.location_manager.get_location_ids():
             self.graph.add_node(id)
@@ -76,7 +81,8 @@ class CampusNavigationApp:
             ("Walking Guide", self.walking_guide),
             ("View route history", self.view_route_history),
             ("View location tree", self.build_location_tree),
-            ("Frequent Locations", self.display_frequent_locations),
+            ("Searched Locations", self.display_frequent_locations),
+            ("Clicked Locations", self.display_recent_locations),
             ("Exit", self.exit_application),
         ]
         self.buttons = add_menu_buttons(self.menu_frame, menu_buttons)
@@ -184,6 +190,8 @@ class CampusNavigationApp:
 
         if nearest_location is None:
             return
+        
+        self.access_location(nearest_location['name'])
 
         x, y = nearest_location['x'], nearest_location['y']
 
@@ -203,40 +211,41 @@ class CampusNavigationApp:
 
         self.clear_info_card()
 
-        # Check if a popup is already open
-        if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
-            self.current_popup.lift()  # Bring the existing popup to the front
-            return
+        popup = self.manage_popup("Search Location", 300, 150)
 
-        # Create a new popup
-        self.current_popup = create_popup_window("Search Location", 300, 150)
-
-        label = tk.Label(self.current_popup, text="Select a location:")
+        label = tk.Label(popup, text="Select a location:")
         label.pack(pady=10)
 
         location_names = [location["name"] for location in self.location_manager.locations]
 
         if not location_names:
-            self.current_popup.destroy()
+            popup.destroy()
             return
+        
+        # Sort the location names alphabetically
+        sorted_location_names = self.sorting.merge_sort(location_names)
 
-        combo_box = ttk.Combobox(self.current_popup, values=location_names, state="readonly")
+
+        combo_box = ttk.Combobox(popup, values=sorted_location_names, state="readonly")
         combo_box.pack(pady=10)
         combo_box.set("Select a location")
 
         def on_select():
             selected_name = combo_box.get()
             if selected_name:
-                result = self.location_manager.search_location(selected_name)
-                if result:
-                    # Store the location in the frequent_locations array
-                    for i in range(self.frequent_locations.size):
-                        if self.frequent_locations.get(i) is None:
-                            self.frequent_locations.set(i, selected_name)
-                            break
-                        elif self.frequent_locations.get(i) == selected_name:
-                            # Avoid duplicates
-                            break
+                # Use binary search to find the location
+                index = self.searching.binary_search(sorted_location_names, selected_name)
+                if index != -1:
+                    result = self.location_manager.search_location(selected_name)
+                    if result:
+                        # Store the location in the frequent_locations array
+                        for i in range(self.frequent_locations.size):
+                            if self.frequent_locations.get(i) is None:
+                                self.frequent_locations.set(i, selected_name)
+                                break
+                            elif self.frequent_locations.get(i) == selected_name:
+                                # Avoid duplicates
+                                break
                     x, y = result['x'], result['y']
                     self.clear_info_card()
                     self.current_marker = self.ax.plot(x, y, 'ro', markersize=12)
@@ -253,10 +262,11 @@ class CampusNavigationApp:
                     render_location_info(self.ax, self.canvas, text, x + 100, y)
                     self.canvas.draw()
                 else:
+                    tk.messagebox.showerror("Error", "Location not found!")
                     return
             self.current_popup.destroy()
 
-        confirm_button = tk.Button(self.current_popup, text="Search", command=on_select)
+        confirm_button = tk.Button(popup, text="Search", command=on_select)
         confirm_button.pack(pady=10)
 
     def find_shortest_route(self):
@@ -330,28 +340,20 @@ class CampusNavigationApp:
         """Display route history with forward and back navigation."""
         # Clear the current marker if it exists
         clear_current_marker(self.current_marker, self.ax)
-
         self.clear_info_card()
 
-        # Check if a popup is already open
-        if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
-            self.current_popup.lift()
-            self.current_popup.destroy()
-            return
-
-        # Create a new popup
-        self.current_popup = create_popup_window("Route History", 400, 300)
+        popup = self.manage_popup("Route History", 400, 300)
 
         history = self.route_history.list
 
         if not history:
-            self.current_popup.destroy()
+            popup.destroy()
             self.update_prompt_text('No Route History Available')
             return
 
         current_index = tk.IntVar(value=len(history) - 1)
 
-        route_label = tk.Label(self.current_popup, text="", wraplength=350, justify="left")
+        route_label = tk.Label(popup, text="", wraplength=350, justify="left")
         route_label.pack(pady=20)
 
         def update_route_label_and_map():
@@ -377,10 +379,10 @@ class CampusNavigationApp:
                 update_route_label_and_map()
 
         # Navigation buttons
-        back_button = tk.Button(self.current_popup, text="Back", command=go_back)
+        back_button = tk.Button(popup, text="Back", command=go_back)
         back_button.pack(side=tk.LEFT, padx=10, pady=10)
 
-        forward_button = tk.Button(self.current_popup, text="Forward", command=go_forward)
+        forward_button = tk.Button(popup, text="Forward", command=go_forward)
         forward_button.pack(side=tk.RIGHT, padx=10, pady=10)
 
         update_route_label_and_map()
@@ -394,18 +396,24 @@ class CampusNavigationApp:
         self.update_prompt_text("Starting walking guide...")
         self.disable_buttons()
 
+        # Initialize a queue to store the locations in the route
+        location_queue = Queue()
+
         # Initialize the current node for traversal
-        self.current_node = self.current_route.head
+        current_node = self.current_route.head
+        while current_node:
+            location_queue.enqueue(current_node.value)
+            current_node = current_node.next
 
         def move_to_next_location():
             """Move to the next location in the route."""
-            if self.current_node is None:
+            if location_queue.isEmpty():
                 self.update_prompt_text("Walking guide completed!")
                 self.enable_buttons()
                 next_button.destroy()  # Remove the button when the guide is complete
                 return
 
-            location_id = self.current_node.value
+            location_id = location_queue.dequeue()
             x, y = self.location_manager.get_location_coordinates(location_id)
 
             # Highlight the current location on the map
@@ -419,9 +427,6 @@ class CampusNavigationApp:
 
             # Update the prompt text
             self.update_prompt_text(f"Currently at {name}. Click 'Next' to continue...")
-
-            # Move to the next node
-            self.current_node = self.current_node.next
 
         # Create a "Next" button for navigation
         next_button = tk.Button(self.root, text="Next", command=move_to_next_location)
@@ -452,16 +457,9 @@ class CampusNavigationApp:
 
     def build_location_tree(self):
         """Build and display the tree structure for campus locations in a popup."""
-        # Check if a popup is already open
-        if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
-            self.current_popup.lift()  # Bring the existing popup to the front
-            self.current_popup.destroy()
-            return
+        popup = self.manage_popup("Location Tree", 400, 300)
 
-        # Create a popup window to display the tree
-        self.current_popup = create_popup_window("Location Tree", 400, 300)
-
-        tree_view = ttk.Treeview(self.current_popup)
+        tree_view = ttk.Treeview(popup)
         tree_view.pack(fill=tk.BOTH, expand=True)
 
         # Add nodes to the Treeview widget
@@ -477,27 +475,66 @@ class CampusNavigationApp:
 
     def display_frequent_locations(self):
         """Display the list of frequently accessed locations."""
-        # Check if a popup is already open
-        if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
-            self.current_popup.lift()  # Bring the existing popup to the front
-            return
+        popup = self.manage_popup("Frequent Locations", 300, 200)
 
-        # Create a new popup
-        self.current_popup = create_popup_window("Frequent Locations", 300, 200)
-
-        label = tk.Label(self.current_popup, text="Frequently Accessed Locations:")
+        label = tk.Label(popup, text="Frequently Accessed Locations:")
         label.pack(pady=10)
 
-        # Display the locations in the array
-        locations = [self.frequent_locations.get(i) for i in range(self.frequent_locations.size) if self.frequent_locations.get(i) is not None]
-        if locations:
-            for location in locations:
-                location_label = tk.Label(self.current_popup, text=location)
+        # Ensure only unique locations are stored in the array
+        unique_locations = Set()
+        for i in range(self.frequent_locations.size):
+            location = self.frequent_locations.get(i)
+            if location is not None:
+                unique_locations.add(location)
+
+        # Convert the set to a list and sort it alphabetically
+        sorted_locations = self.sorting.merge_sort(list(unique_locations))
+
+         # Display the sorted unique locations
+        if sorted_locations:
+            for location in sorted_locations:
+                location_label = tk.Label(popup, text=location)
                 location_label.pack()
         else:
-            no_locations_label = tk.Label(self.current_popup, text="No locations accessed yet.")
+            no_locations_label = tk.Label(popup, text="No locations accessed yet.")
             no_locations_label.pack()
 
+    def access_location(self, location_name):
+        """Access a location and add it to the recent locations list."""
+        if not self.recent_locations.contains(location_name):
+            self.recent_locations.add(location_name)
+
+    def display_recent_locations(self):
+        """Display the list of recently accessed locations."""
+        popup = self.manage_popup("Recently Accessed Locations", 300, 200)
+
+        label = tk.Label(popup, text="Recently Accessed Locations:")
+        label.pack(pady=10)
+
+        # Retrieve the recent locations as a list
+        recent_locations = [self.recent_locations.get(i) for i in range(self.recent_locations.size())]
+
+        # Sort the recent locations alphabetically
+        sorted_recent_locations = self.sorting.quick_sort(recent_locations)
+
+        # Display the sorted recent locations
+        if sorted_recent_locations:
+            for location in sorted_recent_locations:
+                location_label = tk.Label(popup, text=location)
+                location_label.pack()
+        else:
+            no_locations_label = tk.Label(popup, text="No locations accessed yet.")
+            no_locations_label.pack()
+
+    def manage_popup(self, title: str, width: int, height: int):
+        """Manage popups to ensure only one is active at a time."""
+        if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
+            self.current_popup.destroy()  # Destroy the existing popup
+
+        # Create a new popup
+        self.current_popup = create_popup_window(title, width, height)
+        return self.current_popup
+    
     def exit_application(self):
         """Exit the application cleanly."""
         print("Thank you for using Campus Navigation System!")

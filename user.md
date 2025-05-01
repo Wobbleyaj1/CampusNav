@@ -77,3 +77,5 @@ The `LocationManager` class manages the data related to campus locations, includ
 - **Array**: A fixed-size array was used to store frequent locations, providing fast access and efficient memory usage for managing a limited number of commonly visited locations.
 - **Set**: A custom set implementation was used to ensure only unique locations are displayed in the "Frequent Locations" feature, preventing duplicates and maintaining a clean list of accessed locations.
 - **List**: Used for maintaining an ordered collection of locations, as can be seen in the clicked locations tab.
+- **Searching**: Uses binary search for quickly locating specific locations or features within sorted datasets, improving performance for large datasets.
+- **Sorting**: Uses merge sort to organize data, such as sorting locations alphabetically, enhancing the user experience.

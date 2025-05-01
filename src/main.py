@@ -14,10 +14,10 @@ from data_structures.stack import Stack
 from data_structures.graph import Graph
 from data_structures.queue import Queue
 from data_structures.tree import Tree
-from data_structures.array import Array
-from data_structures.array import LinkedStructures
+from data_structures.array import Array, LinkedStructures
 from data_structures.set import Set
 from data_structures.list import List
+from data_structures.searching_sorting import Searching, Sorting
 from utils import (
     extract_coordinates_and_labels,
     add_background_image,
@@ -46,6 +46,8 @@ class CampusNavigationApp:
         self.frequent_locations = Array(size=10, default_value=None)
         self.current_route = LinkedStructures()
         self.recent_locations = List()
+        self.searching = Searching()
+        self.sorting = Sorting()
 
         for id in self.location_manager.get_location_ids():
             self.graph.add_node(id)
@@ -225,24 +227,31 @@ class CampusNavigationApp:
         if not location_names:
             self.current_popup.destroy()
             return
+        
+        # Sort the location names alphabetically
+        sorted_location_names = self.sorting.merge_sort(location_names)
 
-        combo_box = ttk.Combobox(self.current_popup, values=location_names, state="readonly")
+
+        combo_box = ttk.Combobox(self.current_popup, values=sorted_location_names, state="readonly")
         combo_box.pack(pady=10)
         combo_box.set("Select a location")
 
         def on_select():
             selected_name = combo_box.get()
             if selected_name:
-                result = self.location_manager.search_location(selected_name)
-                if result:
-                    # Store the location in the frequent_locations array
-                    for i in range(self.frequent_locations.size):
-                        if self.frequent_locations.get(i) is None:
-                            self.frequent_locations.set(i, selected_name)
-                            break
-                        elif self.frequent_locations.get(i) == selected_name:
-                            # Avoid duplicates
-                            break
+                # Use binary search to find the location
+                index = self.searching.binary_search(sorted_location_names, selected_name)
+                if index != -1:
+                    result = self.location_manager.search_location(selected_name)
+                    if result:
+                        # Store the location in the frequent_locations array
+                        for i in range(self.frequent_locations.size):
+                            if self.frequent_locations.get(i) is None:
+                                self.frequent_locations.set(i, selected_name)
+                                break
+                            elif self.frequent_locations.get(i) == selected_name:
+                                # Avoid duplicates
+                                break
                     x, y = result['x'], result['y']
                     self.clear_info_card()
                     self.current_marker = self.ax.plot(x, y, 'ro', markersize=12)
@@ -504,9 +513,12 @@ class CampusNavigationApp:
             if location is not None:
                 unique_locations.add(location)
 
-        # Display the unique locations
-        if unique_locations: 
-            for location in unique_locations:
+        # Convert the set to a list and sort it alphabetically
+        sorted_locations = self.sorting.merge_sort(list(unique_locations))
+
+         # Display the sorted unique locations
+        if sorted_locations:
+            for location in sorted_locations:
                 location_label = tk.Label(self.current_popup, text=location)
                 location_label.pack()
         else:
@@ -531,10 +543,15 @@ class CampusNavigationApp:
         label = tk.Label(self.current_popup, text="Recently Accessed Locations:")
         label.pack(pady=10)
 
-        # Display the recent locations
-        if self.recent_locations.size() > 0:
-            for i in range(self.recent_locations.size()):
-                location = self.recent_locations.get(i)
+        # Retrieve the recent locations as a list
+        recent_locations = [self.recent_locations.get(i) for i in range(self.recent_locations.size())]
+
+        # Sort the recent locations alphabetically
+        sorted_recent_locations = self.sorting.quick_sort(recent_locations)
+
+        # Display the sorted recent locations
+        if sorted_recent_locations:
+            for location in sorted_recent_locations:
                 location_label = tk.Label(self.current_popup, text=location)
                 location_label.pack()
         else:

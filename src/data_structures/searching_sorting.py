@@ -1,6 +1,6 @@
 # Searching and sorting algorithms
 
-class SearchingSorting:
+class Searching:
     def __init__(self):
         """Initialize the searching and sorting module."""
         pass
@@ -25,6 +25,7 @@ class SearchingSorting:
                 right = mid - 1
         return -1  # Return -1 if the target is not found
 
+class Sorting:
     def bubble_sort(self, array):
         """Sort the array using bubble sort."""
         n = len(array)
@@ -89,3 +90,4 @@ class SearchingSorting:
         result.extend(left[i:])
         result.extend(right[j:])
         return result
+    

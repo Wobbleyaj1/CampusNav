@@ -33,8 +33,8 @@ class Stack:
         """Display the stack."""
         string = ''
         for i in self.list:
-            string += i + ' '
-        return str(string)
+            string += f'{i} '
+        return str(string[:-1])
     
     def __contains__(self, item):
         """Checks if an item is in the stack."""

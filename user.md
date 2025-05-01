@@ -79,3 +79,24 @@ The `LocationManager` class manages the data related to campus locations, includ
 - **List**: Used for maintaining an ordered collection of locations, as can be seen in the clicked locations tab.
 - **Searching**: Uses binary search for quickly locating specific locations or features within sorted datasets, improving performance for large datasets.
 - **Sorting**: Uses merge sort to organize data, such as sorting locations alphabetically, enhancing the user experience.
+
+### Running Unit Tests
+1. Navigate to the test directory:
+   ```bash
+   cd tests
+   ```
+
+2. Run `all_tests.py`:
+   ```bash
+   python all_tests.py
+   ```
+
+3. The terminal will output testing information. Look for the "OK" signaling that all tests passed.
+   ```
+   $ python all_tests.py
+   ...............
+   ----------------------------------------------------------------------
+   Ran 15 tests in 0.000s
+
+   OK
+   ```

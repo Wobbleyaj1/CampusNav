@@ -16,6 +16,8 @@ from data_structures.queue import Queue
 from data_structures.tree import Tree
 from data_structures.array import Array
 from data_structures.array import LinkedStructures
+from data_structures.set import Set
+from data_structures.list import List
 from utils import (
     extract_coordinates_and_labels,
     add_background_image,
@@ -42,7 +44,8 @@ class CampusNavigationApp:
         self.graph = Graph()
         self.location_tree = Tree()
         self.frequent_locations = Array(size=10, default_value=None)
-        self.current_route = LinkedStructures()     
+        self.current_route = LinkedStructures()
+        self.recent_locations = List()
 
         for id in self.location_manager.get_location_ids():
             self.graph.add_node(id)
@@ -76,7 +79,8 @@ class CampusNavigationApp:
             ("Walking Guide", self.walking_guide),
             ("View route history", self.view_route_history),
             ("View location tree", self.build_location_tree),
-            ("Frequent Locations", self.display_frequent_locations),
+            ("Searched Locations", self.display_frequent_locations),
+            ("Clicked Locations", self.display_recent_locations),
             ("Exit", self.exit_application),
         ]
         self.buttons = add_menu_buttons(self.menu_frame, menu_buttons)
@@ -184,6 +188,8 @@ class CampusNavigationApp:
 
         if nearest_location is None:
             return
+        
+        self.access_location(nearest_location['name'])
 
         x, y = nearest_location['x'], nearest_location['y']
 
@@ -491,10 +497,44 @@ class CampusNavigationApp:
         label = tk.Label(self.current_popup, text="Frequently Accessed Locations:")
         label.pack(pady=10)
 
-        # Display the locations in the array
-        locations = [self.frequent_locations.get(i) for i in range(self.frequent_locations.size) if self.frequent_locations.get(i) is not None]
-        if locations:
-            for location in locations:
+        # Ensure only unique locations are stored in the array
+        unique_locations = Set()
+        for i in range(self.frequent_locations.size):
+            location = self.frequent_locations.get(i)
+            if location is not None:
+                unique_locations.add(location)
+
+        # Display the unique locations
+        if unique_locations: 
+            for location in unique_locations:
+                location_label = tk.Label(self.current_popup, text=location)
+                location_label.pack()
+        else:
+            no_locations_label = tk.Label(self.current_popup, text="No locations accessed yet.")
+            no_locations_label.pack()
+
+    def access_location(self, location_name):
+        """Access a location and add it to the recent locations list."""
+        if not self.recent_locations.contains(location_name):
+            self.recent_locations.add(location_name)
+
+    def display_recent_locations(self):
+        """Display the list of recently accessed locations."""
+        # Check if a popup is already open
+        if hasattr(self, "current_popup") and self.current_popup is not None and self.current_popup.winfo_exists():
+            self.current_popup.lift()  # Bring the existing popup to the front
+            return
+
+        # Create a new popup
+        self.current_popup = create_popup_window("Recently Accessed Locations", 300, 200)
+
+        label = tk.Label(self.current_popup, text="Recently Accessed Locations:")
+        label.pack(pady=10)
+
+        # Display the recent locations
+        if self.recent_locations.size() > 0:
+            for i in range(self.recent_locations.size()):
+                location = self.recent_locations.get(i)
                 location_label = tk.Label(self.current_popup, text=location)
                 location_label.pack()
         else:

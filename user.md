@@ -70,7 +70,10 @@ The `LocationManager` class manages the data related to campus locations, includ
 - **`add_background_image(ax, image_path)`**: Adds a background image to the map.
 
 ### Data Structures
-- **Graph**: Used for shortest path calculations between locations.
-- **Tree**: Used for hierarchical categorization of locations.
-- **Stack**: Utilized for managing route history.
-- **Queue**: Utilized for managing the walking guide.
+- **Graph**: A weighted, directed graph was chosen because it provides a realistic representation of the campus map, and supports efficient shortest path calculations. This makes it the most appropriate choice for the project's requirements.
+- **Tree**: An n-ary was chosen because it aligns with the hierarchical nature of campus locations, provides flexibility for updates, and supports efficient traversal for displaying data.
+- **Stack**: Utilized for managing route history, allowing users to navigate backward and forward through previously traversed routes.
+- **Queue**: Utilized for managing the walking guide, enabling step-by-step navigation through a route in a first in first out manner.
+- **Array**: A fixed-size array was used to store frequent locations, providing fast access and efficient memory usage for managing a limited number of commonly visited locations.
+- **Set**: A custom set implementation was used to ensure only unique locations are displayed in the "Frequent Locations" feature, preventing duplicates and maintaining a clean list of accessed locations.
+- **List**: Used for maintaining an ordered collection of locations, as can be seen in the clicked locations tab.

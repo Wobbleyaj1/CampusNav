@@ -43,18 +43,3 @@ class Queue:
         if not any(self.list):
             raise IndexError("Stack is Empty.")
         return self.list[0]
-
-if __name__ == "__main__":
-    q = Queue()
-    for i in range(5):
-        q.enqueue(i)
-    print(f'Size: {len(q)}')
-    print(f'Front Value: {q.peek()}')
-    print(f'Queue: {q}')
-    print(f'Contains 3: {3 in q}')
-    for i in range(3):
-        print(f'Dequeues: {q.dequeue()}')
-    print(f'Queue: {q}')
-    q.clear()
-    print(f'Emptied Queue.')
-    print(f'Queue: {q}')

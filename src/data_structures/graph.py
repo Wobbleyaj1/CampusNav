@@ -89,26 +89,3 @@ class Graph:
             print(f"Error decoding JSON from {json_file}. Graph will have no connections.")
         except FileNotFoundError:
             print(f"JSON file {json_file} not found.")
-
-
-
-if __name__ == "__main__":
-    g = Graph()
-    for i in range(1,6):
-        g.add_node(i)
-    g.add_edge(1,2,7)
-    g.add_edge(1,3,4)
-    g.add_edge(2,5,2)
-    g.add_edge(3,5,8)
-    g.add_edge(2,4,3)
-    print(g)
-    print('Path (3 -> 4):', g.find_shortest_path(3, 4))
-    print('Path (1 -> 5):', g.find_shortest_path(1, 5))
-    print('Adding new edge.')
-    print(g)
-    g.add_edge(1, 5, 8)
-    print('Path (1 -> 5):', g.find_shortest_path(1, 5))
-    g.remove_edge(3,5)
-    print(g)
-    g.remove_node(2)
-    print(g)

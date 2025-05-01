@@ -5,7 +5,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.data_structures.stack import Stack
 
-class TestStack(unittest.TestCase):
+class stack_tests(unittest.TestCase):
     def test_push(self):
         s = Stack([])
         s.push(1)
@@ -36,8 +36,8 @@ class TestStack(unittest.TestCase):
 
     def test_contains(self):
         s = Stack([1, 2, 3])
-        self.assertTrue(2 in s)
-        self.assertFalse(4 in s)
+        self.assertIn(2, s)
+        self.assertNotIn(4, s)
 
     def test_clear(self):
         s = Stack([1, 2 ,3])

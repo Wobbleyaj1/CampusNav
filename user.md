@@ -12,7 +12,7 @@ To use the Campus Navigation System, ensure the following prerequisites are met:
 ### Installation and Setup
 1. Clone the repository to your local machine:
    ```bash
-   git clone https://github.com/your-repo/CampusNav.git
+   git clone https://github.com/Wobbleyaj1/CampusNav.git
    cd CampusNav
    ```
 

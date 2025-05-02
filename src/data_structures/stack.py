@@ -33,8 +33,8 @@ class Stack:
         """Display the stack."""
         string = ''
         for i in self.list:
-            string += i + ' '
-        return str(string)
+            string += f'{i} '
+        return str(string[:-1])
     
     def __contains__(self, item):
         """Checks if an item is in the stack."""
@@ -43,14 +43,3 @@ class Stack:
     def clear(self):
         """Removes all items from the stack."""
         self.list = []
-
-if __name__ == "__main__":
-    s = Stack()
-    for i in range(5):
-        s.push(str(i))
-    print(f"Size: {len(s)}")
-    print(f"Top Value: {s.peek()}")
-    print(f"Stack: {s}")
-    while (not s.is_empty()):
-        print(f"pop: {s.pop()}")
-    print("Stack is empty")

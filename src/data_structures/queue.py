@@ -18,7 +18,7 @@ class Queue:
         string = ''
         for i in self.list:
             string += str(i) + ' '
-        return string
+        return string[:-1]
     
     def __contains__(self, item):
         """Checks if an item is in the queue."""
@@ -42,19 +42,4 @@ class Queue:
         """Returns the item in the front of the queue without removing it."""
         if not any(self.list):
             raise IndexError("Stack is Empty.")
-        self.list[len(self.list)-1]
-
-if __name__ == "__main__":
-    q = Queue()
-    for i in range(5):
-        q.enqueue(i)
-    print(f'Size: {len(q)}')
-    print(f'Front Value: {q.peek()}')
-    print(f'Queue: {q}')
-    print(f'Contains 3: {3 in q}')
-    for i in range(3):
-        print(f'Dequeues: {q.dequeue()}')
-    print(f'Queue: {q}')
-    q.clear()
-    print(f'Emptied Queue.')
-    print(f'Queue: {q}')
+        return self.list[0]

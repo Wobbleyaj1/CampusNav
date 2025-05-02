@@ -23,20 +23,35 @@ Users can:
 
 ```
 CampusNav/
+├── assets/
+│   ├── mercer_map.png
 ├── data/
 │   ├── campus_map.json         # Graph structure of the campus
 │   ├── location_features.json  # Metadata for each campus location
 ├── src/
-│   ├── __init__.py
-|   ├── route_history.py
+│   ├── data_structures/
+│       ├── array.py
+│       ├── graph.py
+│       ├── list.py
+│       ├── queue.py
+│       ├── searching_sorting.py
+│       ├── set.py
+│       ├── stack.py
+│       ├── tree.py
 │   ├── location_manager.py
 │   ├── utils.py                # Helper functions (searching, sorting, etc.)
 │   ├── main.py                 # Main app logic
 ├── tests/
-│   ├── test_graph.py
-│   └── test_nav.py
+│   ├── all_tests.py
+│   ├── graph_tester.py
+│   ├── queue_tester.py
+│   ├── stack_tester.py
+│   └── tree_tester.py
+├── .gitignore
+├── LICENSE
 ├── README.md
-└── requirements.txt
+├── requirements.txt
+└── user.md
 ```
 
 ---
@@ -81,20 +96,58 @@ CampusNav/
 
 ## 🛠️ Setup Instructions
 
-1. Clone the repo:
+### Prerequisites
+To use the Campus Navigation System, ensure the following prerequisites are met:
+- Python 3.8 or higher is installed on your system.
+- Required Python libraries are installed. These can be found in the `requirements.txt` file.
+
+### Installation and Setup
+1. Clone the repository to your local machine:
    ```bash
    git clone https://github.com/Wobbleyaj1/CampusNav.git
    cd CampusNav
    ```
 
-2. Install dependencies:
+2. Install the required dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Run the program:
+### Running the Application
+1. Navigate to the `src` directory:
    ```bash
-   python src/campus_nav.py
+   cd src
+   ```
+
+2. Run the main application:
+   ```bash
+   python main.py
+   ```
+
+3. The application will launch a graphical user interface (GUI) displaying the campus map.
+
+---
+
+## 🧪 Running Unit Tests
+
+1. Navigate to the `tests` directory:
+   ```bash
+   cd tests
+   ```
+
+2. Run all tests:
+   ```bash
+   python all_tests.py
+   ```
+
+3. The terminal will output testing information. Look for the "OK" signaling that all tests passed:
+   ```
+   $ python all_tests.py
+   ...............
+   ----------------------------------------------------------------------
+   Ran 15 tests in 0.000s
+
+   OK
    ```
 
 ---

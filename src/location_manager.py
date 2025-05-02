@@ -1,5 +1,5 @@
 import json
-from data_structures.dictionary import twoWayDict
+
 class LocationManager:
     def __init__(self, json_file="data/campus_map.json", features_file="data/location_features.json"):
         # List to store locations with their full structure

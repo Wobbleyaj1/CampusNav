@@ -100,3 +100,56 @@ The `LocationManager` class manages the data related to campus locations, includ
 
    OK
    ```
+
+## Manual Test Plan for CampusNavigationApp Buttons
+
+### 1. Search for a location
+- Launch the application.
+- Click the “Search for a location” button in the menu bar.
+- Verify that a popup window appears with a combo box of location names.
+- Select a valid location and click “Search.”
+- Confirm that a red dot appears on the map at the location and an info card appears.
+- Repeat with another location.
+- Try selecting the same location again to verify it is not duplicated in the frequent locations list.
+
+### 2. Find shortest route
+- Click the “Find shortest route” button.
+- Confirm that all other buttons become disabled and the prompt changes to “Select Starting Point.”
+- Click on two different location markers on the map.
+- Confirm that a line is drawn connecting the shortest path.
+- Validate that the route is pushed to the route history.
+- Ensure that buttons are re-enabled after completion.
+
+### 3. Walking Guide
+- Click the “Walking Guide” button.
+- Follow any instructions or prompts to simulate walking guide functionality.
+- Confirm guidance is provided on the map.
+- Validate route animations.
+
+### 4. View route history
+- Click the “View route history” button.
+- Confirm that a popup appears showing all previous routes taken.
+- Validate that each route includes location names and distance.
+- Check behavior when no routes are available.
+
+### 5. View location tree
+- Click the “View location tree” button.
+- Confirm that a tree structure appears showing hierarchical relationships between locations.
+- Expand/collapse nodes to verify interactive functionality.
+- Check for expected node names and structure.
+
+### 6. Searched Locations
+- Click the “Searched Locations” button.
+- Validate that a popup shows all locations searched during this session.
+- Confirm no duplicates and a maximum of 10 recent locations.
+- Add more than 10 locations and confirm that older entries are overwritten as expected.
+
+### 7. Clicked Locations
+- Click on several locations on the map manually.
+- Click the “Clicked Locations” button.
+- Confirm that each clicked location is listed in alphabetical order.
+
+### 8. Exit
+- Click the “Exit” button.
+- Confirm that the application closes cleanly.
+- Alternatively, click the window’s close (“X”) button and verify that the same exit logic executes.
